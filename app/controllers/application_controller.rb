@@ -9,6 +9,6 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    travel_plans_path # 旅行計画一覧のパスに変更
+    plans_path # 旅行計画一覧のパスに変更
   end
 end
