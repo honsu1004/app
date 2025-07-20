@@ -1,0 +1,33 @@
+<%= form_with model: plan, local: true do |f| %>
+  <div class="space-y-4">
+    <div>
+      <%= f.label :title, "タイトル", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <div>
+      <%= f.label :description, "説明", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_area :description, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <div>
+      <%= f.label :start_at, "開始日", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :start_at, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <div>
+      <%= f.label :end_at, "終了日", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :end_at, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <%= f.hidden_field :user_id, value: current_user.id %>
+
+    <div class="flex justify-between">
+      <%= f.submit plan.new_record? ? "作成する" : "更新する", class: "bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" %>
+
+      <% if !plan.new_record? %>
+        <%= link_to "削除", plan_path(plan), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

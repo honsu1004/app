@@ -54,7 +54,9 @@ group :development do
 end
 
 group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
+  # Use system testing [https://guides.rubyonrails.dorg/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "devise"

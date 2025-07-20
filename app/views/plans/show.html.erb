@@ -1,0 +1,13 @@
+<h1><%= @plan.title %></h1>
+
+<p><strong><%= t('plans.show.description') %>:</strong><br>
+<%= simple_format(@plan.description) %></p>
+
+<p><strong><%= t('plans.start_at') %>:</strong> <%= @plan.start_at %></p>
+<p><strong><%= t('plans.end_at') %>:</strong> <%= @plan.end_at %></p>
+
+<hr>
+
+<%= link_to t('plans.show.edit'), edit_plan_path(@plan), class: "btn btn-warning" %>
+<%= link_to t('plans.show.delete'), plan_path(@plan), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+<%= link_to t('plans.show.back'), plans_path, class: "btn btn-secondary" %>
