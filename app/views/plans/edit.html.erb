@@ -1,37 +1,5 @@
-<h1><%= 旅行プラン編集 %></h1>
-
-<%= form_with(model: @plan, local: true) do |form| %>
-  <% if @plan.errors.any? %>
-    <div class="alert alert-danger">
-      <h2><%= pluralize(@plan.errors.count, t('edit.error')) %>が発生しました:</h2>
-      <ul>
-        <% @plan.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="mb-3">
-    <%= form.label :title, "タイトル" %>
-    <%= form.text_field :title, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :description, "説明" %>
-    <%= form.text_area :description, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :start_at, "開始日" %>
-    <%= form.date_field :start_at, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :end_at, "終了日" %>
-    <%= form.date_field :end_at, class: "form-control" %>
-  </div>
-
-  <%= form.submit "更新日", class: "btn btn-primary" %>
-  <%= link_to t"キャンセル", plan_path(@plan), class: "btn btn-secondary" %>
-<% end %>
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+  <h1 class="text-2xl font-bold mb-6 text-center">旅行プランを編集</h1>
+  <%= render "form", plan: @plan %>
+</div>
+<%= link_to "削除", plan_path(@plan), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "text-red-600 hover:text-red-800 font-semibold" %>

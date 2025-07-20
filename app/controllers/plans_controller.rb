@@ -2,17 +2,19 @@ class PlansController < ApplicationController
   before_action :set_plan, only: [:show, :edit, :update, :destroy]
 
   def index
-    @plan = current_user.plans
+    @plans = Plan.where(user: current_user) # ユーザーのプランを取得
   end
 
   def new
-    @plan = current_user.plans.build
+    @plan = Plan.new
   end
 
   def create
-    @plan = current_user.plans.build(plan_params)
+    @plan = Plan.new(plan_params)
+    @plan.user = current_user # セキュリティ的にも controller で上書きするのがベスト
+
     if @plan.save
-      redirect_to @plan, notice: t('plans.create')
+      redirect_to plans_path, notice: 'プランが作成されました'
     else
       render :new, status: :unprocessable_entity
     end
@@ -33,8 +35,9 @@ class PlansController < ApplicationController
   end
 
   def destroy
+    @plan = Plan.find(params[:id])
     @plan.destroy
-    redirect_to plans_path, notice: t('plans.destroy')
+    redirect_to plans_path, notice: "プランを削除しました"
   end
 
   private
@@ -44,7 +47,6 @@ class PlansController < ApplicationController
   end
 
   def plan_params
-    params.require(:plan).permit(:title, :description, :start_at, :end_at)
+    params.require(:plan).permit(:title, :description, :start_at, :end_at, :user_id)
   end
 end
-

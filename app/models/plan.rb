@@ -7,5 +7,17 @@ class Plan < ApplicationRecord
   has_one :chat_message
   has_one :checklist_item
   has_one :notes
+
   validates :title, presence: true
+  validates :start_at, presence: true
+  validates :end_at, presence: true
+  validate :end_date_after_start_date
+
+  private
+
+  def end_date_after_start_date
+    if start_at && end_at && end_at < start_at
+      errors.add(:end_at, "は開始日以降を指定してください")
+    end
+  end
 end
