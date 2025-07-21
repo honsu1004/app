@@ -18,6 +18,22 @@ class NotesController < ApplicationController
     end
   end
 
+  def edit
+    @plan = Plan.find(params[:plan_id])
+    @note = @plan.notes.find(params[:id])
+  end
+
+  def update
+    @plan = Plan.find(params[:plan_id])
+    @note = @plan.notes.find(params[:id])
+
+    if @note.update(note_params)
+      redirect_to plan_notes_path(@plan), notice: "ノートを更新しました！"
+    else
+      render :edit
+    end
+  end
+
   def destroy
     @plan = Plan.find(params[:plan_id])  # まずはプランを取得
     @note = @plan.notes.find(params[:id])
