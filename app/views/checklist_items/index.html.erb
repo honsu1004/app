@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-100 px-4 py-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6"><%= @plan.title %> の持ち物チェックリスト</h1>
+
+  <div class="bg-white rounded-xl shadow p-6 max-w-xl mx-auto space-y-4">
+
+    <% @checklist_items.each do |item| %>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <%= form_with model: [@plan, item], method: :patch, local: true do |f| %>
+            <%= f.check_box :is_checked, { checked: item.is_checked, class: "h-5 w-5 text-blue-600", onchange: "this.form.submit()" } %>
+          <% end %>
+          <span class="<%= item.is_checked ? 'line-through text-gray-500' : 'text-gray-800' %>">
+            <%= item.name.presence || "（無題）" %>
+          </span>
+        </div>
+        <%= link_to '削除', plan_checklist_item_path(@plan, item), method: :delete, data: { confirm: '本当に削除しますか？' }, class: "text-red-500 text-sm hover:underline" %>
+      </div>
+    <% end %>
+
+    <!-- 新しい持ち物の追加 -->
+    <%= form_with model: [@plan, ChecklistItem.new], local: true do |f| %>
+      <div class="flex items-center space-x-3 mt-6">
+        <%= f.text_field :name, placeholder: "新しい持ち物を入力", class: "flex-1 p-2 border rounded" %>
+        <%= f.hidden_field :is_checked, value: false %>
+        <%= f.submit "追加", class: "bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-6 text-center">
+    <%= link_to "← プランに戻る", plan_path(@plan), class: "text-blue-500 hover:underline" %>
+  </div>
+</div>
