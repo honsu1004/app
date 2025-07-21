@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gray-100 relative px-4 py-8">
   <h1 class="text-3xl font-bold text-gray-800 mb-8"><%= @plan.title %> のスケジュール</h1>
 
-  <% grouped_items = @schedule_items.group_by(&:day_number).sort.to_h %>
+  <% grouped_items = @schedule_items.group_by(&:day_number).sort_by { |day, _| day.to_i }.to_h %>
 
   <% grouped_items.each do |day, items| %>
     <div class="mb-8">

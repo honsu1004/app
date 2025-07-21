@@ -1,45 +1,80 @@
-<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
-  <h1 class="text-2xl font-bold mb-6 text-center">スケジュールを編集</h1>
+<div class="min-h-screen bg-gray-100 flex justify-center items-start pt-12">
+  <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-xl space-y-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">📍 スケジュールを編集</h1>
 
-  <%= form_with(model: [@plan, @schedule_item], local: true) do |f| %>
     <% if @schedule_item.errors.any? %>
-      <div class="bg-red-100 text-red-700 p-4 rounded mb-6">
-        <h2 class="font-semibold mb-2">エラーがあります:</h2>
+      <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded">
+        <p><strong>エラーがあります:</strong></p>
         <ul class="list-disc list-inside">
-          <% @schedule_item.errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
+          <% @schedule_item.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
           <% end %>
         </ul>
       </div>
     <% end %>
 
-    <div class="mb-4">
-      <%= f.label :day_number, "日目", class: "block font-medium mb-1" %>
-      <%= f.number_field :day_number, min: 1, class: "w-full border border-gray-300 rounded px-3 py-2" %>
-    </div>
+    <%= form_with(model: [@plan, @schedule_item], local: true) do |f| %>
+      <div class="space-y-4">
+        <!-- 日数 -->
+        <div>
+          <%= f.label :day_number, "何日目", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.number_field :day_number, min: 1, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
 
-    <div class="mb-4">
-      <%= f.label :start_time, "開始時間", class: "block font-medium mb-1" %>
-      <%= f.time_field :start_time, class: "w-full border border-gray-300 rounded px-3 py-2" %>
-    </div>
+        <!-- 開始時間 -->
+        <div>
+          <%= f.label :start_time, "開始時間", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.time_field :start_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
 
-    <div class="mb-4">
-      <%= f.label :end_time, "終了時間", class: "block font-medium mb-1" %>
-      <%= f.time_field :end_time, class: "w-full border border-gray-300 rounded px-3 py-2" %>
-    </div>
+        <!-- 終了時間 -->
+        <div>
+          <%= f.label :end_time, "終了時間", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.time_field :end_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
 
-    <div class="mb-6">
-      <%= f.label :address, "場所", class: "block font-medium mb-1" %>
-      <%= f.text_field :address, class: "w-full border border-gray-300 rounded px-3 py-2" %>
-    </div>
+        <!-- 場所 -->
+        <div>
+          <%= f.label :address, "場所（施設名や住所）", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.text_field :address, class: "w-full border-gray-300 rounded-lg shadow-sm", id: "address-field" %>
+        </div>
 
-    <div class="flex justify-between items-center mb-4">
-      <%= link_to "戻る", plan_schedule_items_path(@plan), class: "text-gray-600 hover:text-gray-900 underline" %>
-
-      <div class="flex space-x-4">
-        <%= link_to "削除する", plan_schedule_item_path(@plan, @schedule_item), method: :delete, data: { confirm: "本当に削除してもいいですか？" }, class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition" %>
-        <%= f.submit "更新する", class: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition" %>
+        <!-- マップ -->
+        <div id="map" class="w-full h-64 rounded-lg shadow border"></div>
       </div>
+
+      <div class="flex justify-end pt-6">
+        <%= f.submit "更新", class: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg" %>
+      </div>
+    <% end %>
+
+    <div class="pt-4">
+      <%= link_to "← 戻る", plan_schedule_items_path(@plan), class: "text-blue-500 hover:underline text-sm" %>
     </div>
-  <% end %>
+  </div>
 </div>
+
+<%= javascript_include_tag "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" %>
+<%= stylesheet_link_tag "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const defaultLat = <%= @schedule_item.latitude || 35.681236 %>;
+    const defaultLng = <%= @schedule_item.longitude || 139.767125 %>;
+
+    const map = L.map('map').setView([defaultLat, defaultLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // ドラッグ可能なマーカーを追加
+    const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+    // マーカーがドラッグされた後の位置を取得して hidden フィールドに代入
+    marker.on('dragend', function (e) {
+      const position = marker.getLatLng();
+      document.getElementById('latitude').value = position.lat;
+      document.getElementById('longitude').value = position.lng;
+    });
+  });
+</script>

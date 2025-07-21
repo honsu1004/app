@@ -99,6 +99,7 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
+    csv (3.3.5)
     date (3.4.1)
     debug (1.11.0)
       irb (~> 1.10)
@@ -112,6 +113,9 @@ GEM
     drb (2.2.3)
     erb (5.0.2)
     erubi (1.13.1)
+    geocoder (1.8.5)
+      base64 (>= 0.1.0)
+      csv (>= 3.0.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
     i18n (1.14.7)
@@ -329,6 +333,7 @@ DEPENDENCIES
   cssbundling-rails
   debug
   devise
+  geocoder
   jbuilder
   jsbundling-rails
   mysql2

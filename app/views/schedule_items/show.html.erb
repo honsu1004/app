@@ -1,0 +1,22 @@
+<h1><%= @schedule_item.address %> のマップ</h1>
+
+<div id="map" style="height: 400px;"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const lat = <%= @schedule_item.latitude %>;
+    const lng = <%= @schedule_item.longitude %>;
+
+    const map = L.map('map').setView([lat, lng], 15); // 15はズームレベル
+
+    // OpenStreetMap レイヤーを追加
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // ピンを追加
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup("<%= @schedule_item.address %>")
+      .openPopup();
+  });
+</script>
