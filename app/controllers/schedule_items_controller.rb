@@ -23,6 +23,27 @@ class ScheduleItemsController < ApplicationController
     end
   end
 
+  def edit
+    @plan = Plan.find(params[:plan_id])
+    @schedule_item = @plan.schedule_items.find(params[:id])
+  end
+
+  def update
+    @schedule_item = ScheduleItem.find(params[:id])
+
+    if @schedule_item.update(schedule_item_params)
+      redirect_to plan_schedule_items_path(@schedule_item.plan), notice: "スケジュールを更新しました" # ここでリダイレクト
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @schedule_item = @plan.schedule_items.find(params[:id])
+    @schedule_item.destroy
+    redirect_to plan_schedule_items_path(@plan), notice: "スケジュールを削除しました"
+  end
+
   private
 
   def set_plan
