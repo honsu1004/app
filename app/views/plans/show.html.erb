@@ -1,13 +1,53 @@
-<h1><%= @plan.title %></h1>
+<div class="flex min-h-screen bg-gray-100">
+  <!-- サイドバー -->
+  <aside class="w-64 bg-white shadow-md p-6">
+    <h2 class="text-lg font-semibold mb-4">メニュー</h2>
+    <nav class="space-y-3 text-gray-700">
+      <%= link_to "スケジュール", plan_schedule_items_path(@plan), class: "block hover:text-blue-600" %>
+      <%= link_to "持ち物リスト", plan_items_path(@plan), class: "block hover:text-blue-600" %>
+      <%= link_to "思い出", plan_memories_path(@plan), class: "block hover:text-blue-600" %>
+      <%= link_to "ノート", plan_notes_path(@plan), class: "block hover:text-blue-600" %>
+      <%= link_to "チャット", plan_chats_path(@plan), class: "block hover:text-blue-600" %>
+    </nav>
+  </aside>
 
-<p><strong><%= t('plans.show.description') %>:</strong><br>
-<%= simple_format(@plan.description) %></p>
+  <!-- メインコンテンツ -->
+  <main class="flex-1 p-8">
+    <!-- ヘッダー -->
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2"><%= @plans.title %></h1>
+        <p class="text-sm text-gray-500">旅行期間: <%= @plans.start_at %> 〜 <%= @plans.end_at %></p>
+      </div>
+      <div class="flex gap-2">
+        <%= link_to edit_plan_path(@plans), class: "bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg" do %>
+          ✏️ 編集
+        <% end %>
+        <%= link_to plan_path(@plans), method: :delete, data: { confirm: "本当に削除しますか？" },
+                    class: "bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg" do %>
+          🗑️ 削除
+        <% end %>
+      </div>
+    </div>
 
-<p><strong><%= t('plans.start_at') %>:</strong> <%= @plan.start_at %></p>
-<p><strong><%= t('plans.end_at') %>:</strong> <%= @plan.end_at %></p>
+    <!-- 説明 -->
+    <div class="bg-white p-6 rounded-xl shadow space-y-4 mb-8">
+      <h2 class="text-xl font-semibold text-gray-700">説明</h2>
+      <p class="text-gray-800 whitespace-pre-wrap"><%= simple_format(@plans.description) %></p>
+    </div>
 
-<hr>
+    <!-- メンバー -->
+    <div class="bg-white p-6 rounded-xl shadow space-y-4">
+      <h2 class="text-xl font-semibold text-gray-700">メンバー</h2>
+      <% @plans.members.each do |member| %>
+        <p class="text-gray-800">👤 <%= plan_members.name %>（<%= plan_members.email %>）</p>
+      <% end %>
+    </div>
 
-<%= link_to t('plans.show.edit'), edit_plan_path(@plan), class: "btn btn-warning" %>
-<%= link_to t('plans.show.delete'), plan_path(@plan), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
-<%= link_to t('plans.show.back'), plans_path, class: "btn btn-secondary" %>
+    <!-- 戻る -->
+    <div class="mt-8">
+      <%= link_to "← 一覧へ戻る", plans_path,
+          class: "text-blue-500 hover:underline text-sm" %>
+    </div>
+  </main>
+</div>
