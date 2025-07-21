@@ -1,0 +1,53 @@
+<div class="min-h-screen bg-gray-100 flex justify-center items-start pt-12">
+  <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-xl space-y-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">📅 スケジュールを追加</h1>
+
+    <% if @schedule_item.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded">
+        <p><strong>エラーがあります:</strong></p>
+        <ul class="list-disc list-inside">
+          <% @schedule_item.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with(model: [@plan, @schedule_item], local: true) do |f| %>
+      <div class="space-y-4">
+        <!-- 日数 -->
+        <div>
+          <%= f.label :day_number, "何日目", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.number_field :day_number, min: 1, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
+
+        <!-- 開始時刻 -->
+        <div>
+          <%= f.label :start_time, "開始時間", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.time_field :start_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
+
+        <!-- 終了時刻 -->
+        <div>
+          <%= f.label :end_time, "終了時間", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.time_field :end_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
+
+        <!-- 場所 -->
+        <div>
+          <%= f.label :address, "場所（施設名や住所）", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.text_field :address, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+        </div>
+      </div>
+
+      <!-- 送信ボタン -->
+      <div class="flex justify-end pt-6">
+        <%= f.submit "作成", class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg" %>
+      </div>
+    <% end %>
+
+    <div class="pt-4">
+      <%= link_to "← 戻る", plan_schedule_items_path(@plan), class: "text-blue-500 hover:underline text-sm" %>
+    </div>
+  </div>
+</div>
