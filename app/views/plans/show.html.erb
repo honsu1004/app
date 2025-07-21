@@ -4,7 +4,7 @@
     <h2 class="text-lg font-semibold mb-4">メニュー</h2>
     <nav class="space-y-3 text-gray-700">
       <%= link_to "スケジュール", plan_schedule_items_path(@plan), class: "block hover:text-blue-600" %>
-      <%= link_to "持ち物リスト", plan_items_path(@plan), class: "block hover:text-blue-600" %>
+      <%= link_to "持ち物リスト", plan_checklist_items_path(@plan), class: "block hover:text-blue-600" %>
       <%= link_to "思い出", plan_memories_path(@plan), class: "block hover:text-blue-600" %>
       <%= link_to "ノート", plan_notes_path(@plan), class: "block hover:text-blue-600" %>
       <%= link_to "チャット", plan_chats_path(@plan), class: "block hover:text-blue-600" %>

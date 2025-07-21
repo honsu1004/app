@@ -5,7 +5,9 @@ Rails.application.routes.draw do
   end
 
   resources :plans, only: [:index, :new, :create, :show, :edit, :update, :destroy] do
-    resources :items
+    resources :checklist_items, only: [:index, :create, :destroy] do
+      patch :toggle, on: :member
+    end
     resources :memories
     resources :notes
     resources :chats

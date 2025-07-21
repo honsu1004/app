@@ -5,7 +5,7 @@ class Plan < ApplicationRecord
   has_many :schedule_items
   has_many :memory_folders
   has_one :chat_message
-  has_one :checklist_item
+  has_many :checklist_items
   has_one :notes
 
   validates :title, presence: true
