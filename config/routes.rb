@@ -4,7 +4,13 @@ Rails.application.routes.draw do
     root to: 'devise/sessions#new'
   end
 
-  resources :plans, only: [:index, :new, :create, :show, :edit, :update, :destroy]
+  resources :plans, only: [:index, :new, :create, :show, :edit, :update, :destroy] do
+    resources :schedules
+    resources :items
+    resources :memories
+    resources :notes
+    resources :chats
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

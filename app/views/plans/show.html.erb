@@ -40,7 +40,7 @@
     <div class="bg-white p-6 rounded-xl shadow space-y-4">
       <h2 class="text-xl font-semibold text-gray-700">メンバー</h2>
       <% @plans.members.each do |member| %>
-        <p class="text-gray-800">👤 <%= member.name %>（<%= member.email %>）</p>
+        <p class="text-gray-800">👤 <%= plan_members.name %>（<%= plan_members.email %>）</p>
       <% end %>
     </div>
 
