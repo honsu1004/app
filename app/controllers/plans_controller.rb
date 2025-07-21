@@ -1,4 +1,5 @@
 class PlansController < ApplicationController
+  before_action :authenticate_user!, only: [:new, :create]
   before_action :set_plan, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -6,14 +7,14 @@ class PlansController < ApplicationController
   end
 
   def new
-    @plan = Plan.new
+    @plans = Plan.new
   end
 
   def create
-    @plan = Plan.new(plan_params)
-    @plan.user = current_user # セキュリティ的にも controller で上書きするのがベスト
+    @plans = Plan.new(plan_params)
+    @plans.user = current_user # セキュリティ的にも controller で上書きするのがベスト
 
-    if @plan.save
+    if @plans.save
       redirect_to plans_path, notice: 'プランが作成されました'
     else
       render :new, status: :unprocessable_entity
@@ -27,23 +28,23 @@ class PlansController < ApplicationController
   end
 
   def update
-    if @plan.update(plan_params)
-      redirect_to @plan, notice: t('plans.update')
+    if @plans.update(plan_params)
+      redirect_to @plans, notice: t('plans.update')
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @plan = Plan.find(params[:id])
-    @plan.destroy
+    @plans = Plan.find(params[:id])
+    @plans.destroy
     redirect_to plans_path, notice: "プランを削除しました"
   end
 
   private
 
   def set_plan
-    @plan = current_user.plans.find(params[:id])
+    @plans = current_user.plans.find(params[:id])
   end
 
   def plan_params

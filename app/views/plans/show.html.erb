@@ -1,13 +1,22 @@
-<h1><%= @plan.title %></h1>
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow space-y-6">
+  <h1 class="text-2xl font-bold"><%= @plans.title %></h1>
 
-<p><strong><%= t('plans.show.description') %>:</strong><br>
-<%= simple_format(@plan.description) %></p>
+  <div>
+    <p class="text-gray-700"><strong>説明:</strong></p>
+    <p class="text-gray-900 whitespace-pre-wrap"><%= simple_format(@plans.description) %></p>
+  </div>
 
-<p><strong><%= t('plans.start_at') %>:</strong> <%= @plan.start_at %></p>
-<p><strong><%= t('plans.end_at') %>:</strong> <%= @plan.end_at %></p>
+  <div class="flex gap-6 text-gray-800">
+    <p><strong>開始日:</strong> <%= @plans.start_at %></p>
+    <p><strong>終了日:</strong> <%= @plans.end_at %></p>
+  </div>
 
-<hr>
-
-<%= link_to t('plans.show.edit'), edit_plan_path(@plan), class: "btn btn-warning" %>
-<%= link_to t('plans.show.delete'), plan_path(@plan), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
-<%= link_to t('plans.show.back'), plans_path, class: "btn btn-secondary" %>
+  <div class="flex justify-between pt-6">
+    <%= link_to "編集", edit_plan_path(@plans),
+        class: "bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded" %>
+    <%= link_to "削除", plan_path(@plans), method: :delete, data: { confirm: "本当に削除しますか？" },
+        class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded" %>
+    <%= link_to "一覧へ", plans_path,
+        class: "bg-blue-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded" %>
+  </div>
+</div>
