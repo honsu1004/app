@@ -5,11 +5,11 @@ Rails.application.routes.draw do
   end
 
   resources :plans, only: [:index, :new, :create, :show, :edit, :update, :destroy] do
-    resources :schedules
     resources :items
     resources :memories
     resources :notes
     resources :chats
+    resources :schedule_items
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

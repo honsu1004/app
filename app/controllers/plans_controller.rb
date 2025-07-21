@@ -22,6 +22,7 @@ class PlansController < ApplicationController
   end
 
   def show
+    @plan = Plan.find(params[:id]) 
   end
 
   def edit
