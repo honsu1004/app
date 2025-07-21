@@ -6,3 +6,5 @@ Rails.start(); // ← これが大事！
 
 import $ from "jquery";
 window.$ = $;
+
+import "./map";

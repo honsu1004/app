@@ -21,26 +21,28 @@
           <%= f.number_field :day_number, min: 1, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
         </div>
 
-        <!-- 開始時刻 -->
+        <!-- 開始時間 -->
         <div>
           <%= f.label :start_time, "開始時間", class: "block text-gray-700 font-medium mb-1" %>
           <%= f.time_field :start_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
         </div>
 
-        <!-- 終了時刻 -->
+        <!-- 終了時間 -->
         <div>
           <%= f.label :end_time, "終了時間", class: "block text-gray-700 font-medium mb-1" %>
           <%= f.time_field :end_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
         </div>
 
         <!-- 場所 -->
-        <div>
+        <div class="mb-4">
           <%= f.label :address, "場所（施設名や住所）", class: "block text-gray-700 font-medium mb-1" %>
-          <%= f.text_field :address, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+          <%= f.text_field :address, class: "w-full border-gray-300 rounded-lg shadow-sm", id: "address-field" %>
         </div>
+
+        <!-- マップ -->
+        <div id="map" class="w-full h-64 rounded-lg shadow border"></div>
       </div>
 
-      <!-- 送信ボタン -->
       <div class="flex justify-end pt-6">
         <%= f.submit "作成", class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg" %>
       </div>
@@ -51,3 +53,28 @@
     </div>
   </div>
 </div>
+
+<%= javascript_include_tag "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" %>
+<%= stylesheet_link_tag "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const defaultLat = <%= @schedule_item.latitude || 35.681236 %>;
+    const defaultLng = <%= @schedule_item.longitude || 139.767125 %>;
+
+    const map = L.map('map').setView([defaultLat, defaultLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // ドラッグ可能なマーカーを追加
+    const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+    // マーカーがドラッグされた後の位置を取得して hidden フィールドに代入
+    marker.on('dragend', function (e) {
+      const position = marker.getLatLng();
+      document.getElementById('latitude').value = position.lat;
+      document.getElementById('longitude').value = position.lng;
+    });
+  });
+</script>

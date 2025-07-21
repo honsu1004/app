@@ -44,6 +44,10 @@ class ScheduleItemsController < ApplicationController
     redirect_to plan_schedule_items_path(@plan), notice: "スケジュールを削除しました"
   end
 
+  def show
+    @schedule_item = @plan.schedule_items.find(params[:id])
+  end
+
   private
 
   def set_plan

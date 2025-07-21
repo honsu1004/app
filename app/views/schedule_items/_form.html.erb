@@ -1,0 +1,12 @@
+<!-- 場所 -->
+<div>
+  <%= f.label :address, "場所（施設名や住所）", class: "block text-gray-700 font-medium mb-1" %>
+  <%= f.text_field :address, class: "w-full border-gray-300 rounded-lg shadow-sm", id: "address-field" %>
+</div>
+
+<!-- 隠しフィールド（緯度・経度） -->
+<%= f.hidden_field :latitude, id: "latitude-field" %>
+<%= f.hidden_field :longitude, id: "longitude-field" %>
+
+<!-- マップ -->
+<div id="map" class="w-full h-64 rounded-lg shadow border"></div>
