@@ -1,0 +1,7 @@
+<div class="bg-gray-100 p-3 rounded shadow">
+  <strong><%= chat_message.user.name %>:</strong>
+  <%= chat_message.content %>
+  <div class="text-xs text-gray-500">
+    <%= l(chat_message.created_at, format: :short) %>
+  </div>
+</div>

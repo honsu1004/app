@@ -8,3 +8,4 @@ import $ from "jquery";
 window.$ = $;
 
 import "./map";
+import "./channels"

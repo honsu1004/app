@@ -4,7 +4,7 @@ class Plan < ApplicationRecord
   has_many :members, through: :plan_members, source: :user
   has_many :schedule_items
   has_many :memory_folders
-  has_one :chat_message
+  has_many :chat_messages
   has_many :checklist_items
   has_many :notes
 
