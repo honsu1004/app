@@ -8,7 +8,9 @@ Rails.application.routes.draw do
     resources :checklist_items, only: [:index, :create, :destroy] do
       patch :toggle, on: :member
     end
-    resources :memories
+    resources :memory_folders do
+      resources :memories, only: [:create, :destroy]
+    end
     resources :notes
     resources :chat_messages, only: [:index, :create]
     resources :schedule_items
