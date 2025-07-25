@@ -1,16 +1,38 @@
 FROM ruby:3.3.6
+
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
+
+# Node.jsとYarnのリポジトリ追加
 RUN apt-get update -qq \
-&& apt-get install -y ca-certificates curl gnupg \
-&& mkdir -p /etc/apt/keyrings \
-&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-&& NODE_MAJOR=20 \
-&& echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-&& wget --quiet -O - /tmp/pubkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-&& echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update -qq && apt-get install -y build-essential libssl-dev nodejs yarn vim
+  && apt-get install -y ca-certificates curl gnupg wget \
+  && mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
+
+# 必要なパッケージをインストール（ここに libvips や ffmpeg を追加）
+RUN apt-get update -qq && apt-get install -y \
+  build-essential \
+  libssl-dev \
+  libpq-dev \
+  nodejs \
+  yarn \
+  vim \
+  libvips \
+  ffmpeg \
+  imagemagick \
+  git \
+  sqlite3 \
+  && rm -rf /var/lib/apt/lists/*
+
+# アプリ用ディレクトリを作成
 RUN mkdir /myapp
 WORKDIR /myapp
+
+# 最新のbundlerをインストール
 RUN gem install bundler
+
+# アプリケーションファイルをコピー
 COPY . /myapp
