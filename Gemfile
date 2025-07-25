@@ -61,3 +61,4 @@ end
 
 gem "devise"
 gem "geocoder"
+gem "jquery-rails"

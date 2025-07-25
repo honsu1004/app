@@ -10,9 +10,12 @@ Rails.application.routes.draw do
     end
     resources :memories
     resources :notes
-    resources :chats
+    resources :chat_messages, only: [:index, :create]
     resources :schedule_items
   end
+
+  # Action Cableのルーティング設定
+  mount ActionCable.server => '/cable'
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

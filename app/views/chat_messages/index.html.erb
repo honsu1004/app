@@ -1,0 +1,16 @@
+<div class="flex flex-col h-screen w-full p-6">
+  <h2 class="text-xl font-bold mb-4">チャット</h2>
+
+  <!-- Turbo Streams: WebSocket購読 -->
+  <%= turbo_stream_from "chat_#{@plan.id}" %>
+
+  <!-- チャットメッセージ表示エリア -->
+  <div id="chat_messages" class="flex-1 overflow-y-auto space-y-2">
+    <%= render @chat_messages %>
+  </div>
+
+  <!-- チャット入力フォーム（Turbo Frameで囲むとJS競合に強くなる）-->
+  <%= turbo_frame_tag "chat_form" do %>
+    <%= render "form", plan: @plan, chat_message: ChatMessage.new(plan: @plan) %>
+  <% end %>
+</div>
