@@ -5,10 +5,12 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
     <% @memories.each do |memory| %>
-      <div class="bg-gray-100 p-4 rounded relative">
+      <div class="bg-gray-100 p-4 rounded relative shadow-sm">
         <% if memory.media.attached? %>
           <% if memory.media.content_type.starts_with?("image/") %>
-            <%= image_tag memory.media.variant(resize_to_limit: [300, 300]), class: "w-full rounded" %>
+            <%= link_to url_for(memory.media), target: "_blank" do %>
+              <%= image_tag memory.media.variant(resize_to_limit: [300, 300]), class: "w-full rounded hover:opacity-80 transition" %>
+            <% end %>
           <% elsif memory.media.content_type.starts_with?("video/") %>
             <video controls class="w-full rounded">
               <source src="<%= url_for(memory.media) %>" type="<%= memory.media.content_type %>">
@@ -23,7 +25,7 @@
 
         <p class="mt-2 text-sm text-gray-600">投稿者: <%= memory.user.name %></p>
 
-        <%= button_to "削除", plan_memory_folder_memory_path(@memory_folder, memory), method: :delete, data: { confirm: "削除しますか？" }, class: "absolute top-2 right-2 text-red-600" %>
+        <%= button_to "削除", plan_memory_folder_memory_path(@memory_folder, memory), method: :delete, data: { confirm: "削除しますか？" }, class: "absolute top-2 right-2 text-red-600 text-sm" %>
       </div>
     <% end %>
   </div>

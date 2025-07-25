@@ -3,11 +3,9 @@ class MemoryFoldersController < ApplicationController
   before_action :set_memory_folder, only: [:show, :update, :destroy]
 
   def index
-    @memory_folders = @plan.memory_folders
-    @memory_folder = @plan.memory_folders.new
-    @memory_folders.each do |folder|
-      puts folder.inspect  # ログに出力して確認
-    end
+    @plan = Plan.find(params[:plan_id])
+    @memory_folder = @plan.memory_folders.build
+    @memory_folders = @plan.memory_folders.where.not(id: nil) # ← これが重要！
   end
 
   def show
@@ -50,6 +48,6 @@ class MemoryFoldersController < ApplicationController
   end
 
   def memory_folder_params
-    params.require(:memory_folder).permit(:name)
+    params.require(:memory_folder).permit(:name, media: [])
   end
 end
