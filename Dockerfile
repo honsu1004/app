@@ -12,9 +12,11 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 WORKDIR /rails
 
 # Install base packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+RUN apt-get update -qq && apt-get install -y \
+  build-essential \
+  libpq-dev \
+  nodejs \
+  libvips # ← これを追加！
 
 # Set production environment
 ENV RAILS_ENV="production" \
