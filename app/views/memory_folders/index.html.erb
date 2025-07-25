@@ -1,0 +1,25 @@
+<div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+  <h1 class="text-2xl font-bold mb-6 text-center">思い出フォルダ一覧</h1>
+
+  <%= form_with model: [@plan, @memory_folder], local: true, class: "mb-6" do |f| %>
+    <div class="flex gap-4 items-center">
+      <%= f.text_field :name, placeholder: "新しいフォルダ名", class: "flex-1 border px-4 py-2 rounded" %>
+      <%= f.submit "作成", class: "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" %>
+    </div>
+  <% end %>
+
+  <ul class="space-y-4 mt-4">
+    <% @memory_folders.each do |folder| %>
+      <% if folder.id.present? %>
+        <li class="flex justify-between items-center bg-gray-100 p-4 rounded">
+          <%= link_to folder.name, plan_memory_folder_path(@plan, folder), class: "text-blue-600 font-semibold" %>
+          <%= button_to "削除", plan_memory_folder_path(@plan, folder), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "text-red-500" %>
+        </li>
+      <% else %>
+        <li class="text-red-500">保存されていないフォルダがあります</li>
+      <% end %>
+    <% end %>
+  </ul>
+
+  <%= link_to "← 旅行プランへ戻る", plan_path(@plan), class: "mt-6 inline-block text-blue-600" %>
+</div>

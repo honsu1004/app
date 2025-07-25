@@ -9,7 +9,7 @@ Rails.application.routes.draw do
       patch :toggle, on: :member
     end
     resources :memory_folders do
-      resources :memories, only: [:create, :destroy]
+      resources :memories, only: [:index, :create, :edit, :destroy]
     end
     resources :notes
     resources :chat_messages, only: [:index, :create]
