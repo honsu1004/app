@@ -30,5 +30,33 @@
 
     <%= yield %>
     <%= yield :javascript %>
+    <script>
+      function previewMedia(event) {
+        const file = event.target.files[0];
+        const previewContainer = document.getElementById('media-preview');
+        previewContainer.innerHTML = ""; // 既存プレビューを消す
+
+        if (!file) return;
+
+        const fileType = file.type;
+
+        const url = URL.createObjectURL(file);
+
+        if (fileType.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = url;
+          img.className = "max-w-full h-auto rounded";
+          previewContainer.appendChild(img);
+        } else if (fileType.startsWith('video/')) {
+          const video = document.createElement('video');
+          video.src = url;
+          video.controls = true;
+          video.className = "max-w-full h-auto rounded";
+          previewContainer.appendChild(video);
+        } else {
+          previewContainer.textContent = "対応していないファイル形式です。";
+        }
+      }
+    </script>
   </body>
 </html>
