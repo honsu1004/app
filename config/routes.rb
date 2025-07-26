@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   end
 
   resources :plans, only: [:index, :new, :create, :show, :edit, :update, :destroy] do
+    post 'members/invite', to: 'plan_members#invite', as: :invite_members
     resources :checklist_items, only: [:index, :create, :destroy] do
       patch :toggle, on: :member
     end

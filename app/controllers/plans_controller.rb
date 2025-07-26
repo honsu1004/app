@@ -1,4 +1,5 @@
 class PlansController < ApplicationController
+  before_action :authorize_member!, only: [:edit, :update, :destroy]
   before_action :authenticate_user!, only: [:new, :create]
   before_action :set_plan, only: [:show, :edit, :update, :destroy]
 
@@ -40,6 +41,13 @@ class PlansController < ApplicationController
     @plans = Plan.find(params[:id])
     @plans.destroy
     redirect_to plans_path, notice: "プランを削除しました"
+  end
+
+  def authorize_member!
+    @plan = Plan.find(params[:id])
+    unless @plan.members.include?(current_user) || @plan.user == current_user
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+    end
   end
 
   private
