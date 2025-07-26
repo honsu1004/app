@@ -19,6 +19,13 @@ class PlanMembersController < ApplicationController
     end
   end
 
+  def authorize_member!
+    @plan = Plan.find(params[:id])
+    unless @plan.members.include?(current_user) || @plan.user == current_user
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+    end
+  end
+
   private
 
   def set_plan

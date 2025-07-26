@@ -1,6 +1,6 @@
 class ChatMessagesController < ApplicationController
-  before_action :authorize_member!, only: [ :edit, :update, :destroy ]
   before_action :set_plan
+  before_action :authorize_member!, only: [ :index, :create ]
 
   def index
     @chat_messages = @plan.chat_messages.includes(:user).order(created_at: :asc)
@@ -19,6 +19,13 @@ class ChatMessagesController < ApplicationController
       head :no_content
     else
       render :index, status: :unprocessable_entity
+    end
+  end
+
+  def authorize_member!
+    @plan = Plan.find(params[:plan_id])
+    unless @plan.members.include?(current_user) || @plan.user == current_user
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
     end
   end
 

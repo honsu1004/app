@@ -7,7 +7,7 @@
 
   <!-- チャットメッセージ表示エリア -->
   <div id="chat_messages" class="flex-1 overflow-y-auto space-y-2">
-    <%= render @chat_messages %>
+    <%= render @chat_messages.order(created_at: :desc) %>
   </div>
 
   <!-- チャット入力フォーム（Turbo Frameで囲むとJS競合に強くなる）-->
