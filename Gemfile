@@ -63,3 +63,4 @@ gem "devise"
 gem "geocoder"
 gem "jquery-rails"
 gem "rubocop", require: false
+gem "letter_opener", group: :development
