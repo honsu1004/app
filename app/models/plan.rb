@@ -2,11 +2,11 @@ class Plan < ApplicationRecord
   belongs_to :user
   has_many :plan_members, dependent: :destroy
   has_many :members, through: :plan_members, source: :user
-  has_many :schedule_items
-  has_many :memory_folders
-  has_many :chat_messages
-  has_many :checklist_items
-  has_many :notes
+  has_many :schedule_items, dependent: :destroy
+  has_many :memory_folders, dependent: :destroy
+  has_many :chat_messages, dependent: :destroy
+  has_many :checklist_items, dependent: :destroy
+  has_many :notes, dependent: :destroy
 
   validates :title, presence: true
   validates :start_at, presence: true
