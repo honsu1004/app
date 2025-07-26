@@ -1,4 +1,6 @@
 class ChecklistItemsController < ApplicationController
+  before_action :authorize_member!, only: [:edit, :update, :destroy]
+  
   def index
     @plan = Plan.find(params[:plan_id])
     @checklist_items = @plan.checklist_items

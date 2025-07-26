@@ -1,4 +1,6 @@
 class NotesController < ApplicationController
+  before_action :authorize_member!, only: [:edit, :update, :destroy]
+  
   def index
     @plan = Plan.find(params[:plan_id]) # paramsからplan_idを取得して探す
     @notes = @plan.notes.order(created_at: :desc)

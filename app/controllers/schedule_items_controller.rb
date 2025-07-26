@@ -1,4 +1,5 @@
 class ScheduleItemsController < ApplicationController
+  before_action :authorize_member!, only: [:edit, :update, :destroy]
   before_action :set_plan
 
   def index

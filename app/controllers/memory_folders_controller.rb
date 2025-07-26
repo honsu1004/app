@@ -1,4 +1,5 @@
 class MemoryFoldersController < ApplicationController
+  before_action :authorize_member!, only: [:edit, :update, :destroy]
   before_action :set_plan
   before_action :set_memory_folder, only: [:show, :update, :destroy]
 
