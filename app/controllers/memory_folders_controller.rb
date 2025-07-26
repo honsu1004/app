@@ -1,7 +1,7 @@
 class MemoryFoldersController < ApplicationController
-  before_action :authorize_member!, only: [:edit, :update, :destroy]
   before_action :set_plan
-  before_action :set_memory_folder, only: [:show, :update, :destroy]
+  before_action :set_memory_folder, only: [ :show, :update, :destroy ]
+  before_action :authorize_member!, only: [ :index, :create, :update, :destroy ]
 
   def index
     @plan = Plan.find(params[:plan_id])
@@ -36,6 +36,13 @@ class MemoryFoldersController < ApplicationController
   def destroy
     @memory_folder.destroy
     redirect_to plan_memory_folder_path(@plan), notice: "フォルダを削除しました"
+  end
+
+  def authorize_member!
+    @plan = Plan.find(params[:plan_id])
+    unless @plan.members.include?(current_user) || @plan.user == current_user
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+    end
   end
 
   private

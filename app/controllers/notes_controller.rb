@@ -1,5 +1,5 @@
 class NotesController < ApplicationController
-  before_action :authorize_member!, only: [ :edit, :update, :destroy ]
+  before_action :authorize_member!, only: [ :index, :create, :edit, :update, :destroy ]
 
   def index
     @plan = Plan.find(params[:plan_id]) # paramsからplan_idを取得して探す
@@ -41,6 +41,13 @@ class NotesController < ApplicationController
     @note = @plan.notes.find(params[:id])
     @note.destroy
     redirect_to plan_notes_path(@plan), notice: "ノートを削除しました"
+  end
+
+  def authorize_member!
+    @plan = Plan.find(params[:plan_id])
+    unless @plan.members.include?(current_user) || @plan.user == current_user
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+    end
   end
 
   private
