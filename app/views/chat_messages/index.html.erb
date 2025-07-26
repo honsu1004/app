@@ -1,17 +1,37 @@
-<div class="flex flex-col h-screen w-full p-6">
-  <h2 class="text-xl font-bold mb-4">チャット</h2>
-  <%= link_to "← プランに戻る", plan_path(@plan), class: "mt-6 mb-4 inline-block text-blue-600" %>
-
-  <!-- Turbo Streams: WebSocket購読 -->
-  <%= turbo_stream_from "chat_#{@plan.id}" %>
-
-  <!-- チャットメッセージ表示エリア -->
-  <div id="chat_messages" class="flex-1 overflow-y-auto space-y-2">
-    <%= render @chat_messages.order(created_at: :desc) %>
+<div class="flex flex-col h-screen w-full">
+  <!-- ヘッダー -->
+  <div class="p-4 bg-white shadow z-10">
+    <h2 class="text-xl font-bold">チャット</h2>
+    <%= link_to "← プランに戻る", plan_path(@plan), class: "text-blue-600 text-sm" %>
   </div>
 
-  <!-- チャット入力フォーム（Turbo Frameで囲むとJS競合に強くなる）-->
-  <%= turbo_frame_tag "chat_form" do %>
-    <%= render "form", plan: @plan, chat_message: ChatMessage.new(plan: @plan) %>
-  <% end %>
+  <!-- メッセージ表示エリア -->
+  <div id="chat_message" class="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-gray-100">
+    <div id="chat_messages">
+      <%= render @chat_messages %>
+    </div>
+  </div>
+
+  <!-- 入力フォーム -->
+  <div class="p-4 bg-white border-t shadow z-10">
+    <%= render partial: "form", locals: { plan: @plan, chat_message: @chat_message } %>
+  </div>
+
+  <!-- Turbo Stream -->
+  <%= turbo_stream_from "chat_channel_#{@plan.id}" %>
 </div>
+
+<script>
+  function scrollToBottom() {
+    const chatBox = document.getElementById("chat_message");
+    if (chatBox) {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  // 初回読み込み時と Turbo Stream 更新時にスクロール
+  document.addEventListener("turbo:load", scrollToBottom);
+  document.addEventListener("turbo:before-stream-render", () => {
+    requestAnimationFrame(scrollToBottom);
+  });
+</script>

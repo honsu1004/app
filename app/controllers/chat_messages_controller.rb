@@ -1,24 +1,29 @@
 class ChatMessagesController < ApplicationController
   before_action :set_plan
   before_action :authorize_member!, only: [ :index, :create ]
+  before_action :set_chat_messages, only: [ :index, :create ]
 
   def index
-    @chat_messages = @plan.chat_messages.includes(:user).order(created_at: :asc)
+    @chat_message = @chat_messages.new
   end
 
   def create
-    @chat_message = @plan.chat_messages.build(chat_message_params)
-    @chat_message.user = current_user
+    @chat_message = ChatMessage.new(chat_message_params)
 
-    if @chat_message.save
-      Turbo::StreamsChannel.broadcast_prepend_to(
-        "chat_#{@plan.id}",
-        target: "chat_messages",
-        partial: "chat_messages/chat_message",
-        locals: { chat_message: @chat_message })
-      head :no_content
-    else
-      render :index, status: :unprocessable_entity
+    respond_to do |format|
+      if @chat_message.save
+        respond_to do |format|
+          format.turbo_stream do
+            render turbo_stream: turbo_stream.prepend("chat_messages",
+            partial: "chat_messages/chat_message",
+            locals: { chat_message: @chat_message })
+          end
+          format.html { redirect_to plan_chatmessages_path(@plan) }
+        end
+      else
+        logger.debug "❌ ChatMessage Save Failed: #{@chat_message.errors.full_messages}"
+        format.html { render :index, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -36,6 +41,10 @@ class ChatMessagesController < ApplicationController
   end
 
   def chat_message_params
-    params.require(:chat_message).permit(:content)
+    params.require(:chat_message).permit(:content).merge(user_id: current_user.id, plan_id: params[:plan_id])
+  end
+
+  def set_chat_messages
+    @chat_messages = @plan.chat_messages.includes(:user)
   end
 end
