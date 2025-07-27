@@ -27,8 +27,14 @@ class MemoriesController < ApplicationController
   end
 
   def destroy
+    @memory_folder = @memory.memory_folder
+    @plan = @memory_folder.plan
+    
+    # 画像とメモリを削除
+    @memory.media.purge if @memory.media.attached?
     @memory.destroy
-    redirect_to plan_memory_folder_path(@memory_folder.plan, @memory_folder), notice: "思い出を削除しました"
+
+    redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: '思い出が削除されました'
   end
 
   def authorize_member!

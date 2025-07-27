@@ -10,20 +10,31 @@
   <% end %>
 
   <ul class="space-y-4 mt-4">
-  <% @memory_folders.select(&:persisted?).each do |folder| %>
-    <li class="flex justify-between items-center bg-gray-100 p-4 rounded">
-      <div>
-        <%= link_to folder.name, plan_memory_folder_path(@plan, folder), class: "text-blue-600 font-semibold" %>
-        <p class="text-gray-500 text-sm">作成日: <%= folder.created_at.strftime("%Y年%m月%d日") %></p> <!-- 作成日を表示 -->
-      </div>
-      <%= button_to "削除", plan_memory_folder_path(@plan, folder), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "text-red-500" %>
-    </li>
-  <% end %>
+    <% @memory_folders.select(&:persisted?).each do |folder| %>
+      <li class="flex justify-between items-center bg-gray-100 p-4 rounded">
+        <div>
+          <%= link_to folder.name, plan_memory_folder_path(@plan, folder), class: "text-blue-600 font-semibold" %>
+          <p class="text-gray-500 text-sm">作成日: <%= folder.created_at.strftime("%Y年%m月%d日") %></p>
+        </div>
 
-  <% if @memory_folders.any? { |folder| !folder.persisted? } %>
-    <li class="text-red-500">保存されていないフォルダがあります</li>
-  <% end %>
-</ul>
+        <div class="flex flex-col gap-2">
+          <% folder.memories.each do |memory| %>
+            <div class="mt-2">
+              <%= image_tag memory.url, class: "h-32 w-auto" if memory.url.present? %>
+              <%= button_to "画像削除", plan_memory_folder_memory_path(memory.memory_folder.plan, memory.memory_folder, memory),
+                  method: :delete,
+                  data: { confirm: "この画像を削除してもよろしいですか？" },
+                  class: "text-red-500 mt-2" %>
+            </div>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+
+    <% if @memory_folders.any? { |folder| !folder.persisted? } %>
+      <li class="text-red-500">保存されていないフォルダがあります</li>
+    <% end %>
+  </ul>
 
   <%= link_to "← プランに戻る", plan_path(@plan), class: "mt-6 inline-block text-blue-600" %>
 </div>
