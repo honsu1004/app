@@ -4,7 +4,9 @@
       <h2 class="font-bold mb-2">エラーがあります：</h2>
       <ul class="list-disc list-inside">
         <% plan.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
+          <% unless msg.in?(["タイトルを入力してください", "開始日時を入力してください", "終了日時を入力してください"]) %>
+            <li><%= msg %></li>
+          <% end %>
         <% end %>
       </ul>
     </div>

@@ -56,3 +56,14 @@ ja:
       not_saved:
         one: "エラーが発生したため %{resource} は保存されませんでした。"
         other: "%{count} 件のエラーが発生したため %{resource} は保存されませんでした。"
+  activerecord:
+    errors:
+      models:
+        plan:
+          attributes:
+            title:
+              blank: "タイトルを入力してください"
+            start_at:
+              blank: "開始日時を入力してください"
+            end_at:
+              blank: "終了日時を入力してください"
