@@ -1,0 +1,5 @@
+ja:
+  devise:
+    failure:
+      user:
+        invalid: "メールアドレスまたはパスワードが正しくありません"
