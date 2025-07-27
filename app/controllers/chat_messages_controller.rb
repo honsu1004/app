@@ -4,26 +4,20 @@ class ChatMessagesController < ApplicationController
   before_action :set_chat_messages, only: [ :index, :create ]
 
   def index
-    @chat_message = @chat_messages.new
+    @plan = Plan.find(params[:plan_id])
+    @chat_message = @plan.chat_messages.includes(:user).order(:created_at)
+    @chat_message = ChatMessage.new
   end
 
   def create
-    @chat_message = ChatMessage.new(chat_message_params)
+    @plan = Plan.find(params[:plan_id])
+    @chat_message = @plan.chat_messages.new(chat_message_params)
+    @chat_message.user = current_user
 
-    respond_to do |format|
-      if @chat_message.save
-        respond_to do |format|
-          format.turbo_stream do
-            render turbo_stream: turbo_stream.prepend("chat_messages",
-            partial: "chat_messages/chat_message",
-            locals: { chat_message: @chat_message })
-          end
-          format.html { redirect_to plan_chatmessages_path(@plan) }
-        end
-      else
-        logger.debug "❌ ChatMessage Save Failed: #{@chat_message.errors.full_messages}"
-        format.html { render :index, status: :unprocessable_entity }
-      end
+    if @chat_message.save
+        
+    else
+      logger.debug "❌ ChatMessage Save Failed: #{@chat_message.errors.full_messages}"
     end
   end
 

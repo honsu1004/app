@@ -1,9 +1,7 @@
-<%= turbo_frame_tag dom_id(chat_message) do %>
-  <div class="bg-gray-100 p-3 rounded shadow">
-    <strong><%= chat_message.user.name %>:</strong>
-    <%= chat_message.content %>
-    <div class="text-xs text-gray-500">
-      <%= chat_message.created_at.in_time_zone("Asia/Tokyo").strftime("%-m/%-d %-H:%M") %>
-    </div>
+<div class="bg-gray-100 p-3 rounded shadow">
+  <strong><%= chat_message.user.name %>:</strong>
+  <%= chat_message.content %>
+  <div class="text-xs text-gray-500">
+    <%= chat_message.created_at.in_time_zone("Asia/Tokyo").strftime("%-m/%-d %-H:%M") %>
   </div>
-<% end %>
+</div>

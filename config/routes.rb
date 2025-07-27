@@ -13,7 +13,7 @@ Rails.application.routes.draw do
       resources :memories, only: [:index, :create, :edit, :destroy]
     end
     resources :notes
-    resources :chat_messages, only: [:index, :create, :edit, :update, :destroy]
+    resources :chat_messages, only: [:index, :create, :destroy]
     resources :schedule_items
   end
 

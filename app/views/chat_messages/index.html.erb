@@ -14,7 +14,9 @@
 
   <!-- 入力フォーム -->
   <div class="p-4 bg-white border-t shadow z-10">
-    <%= render partial: "form", locals: { plan: @plan, chat_message: @chat_message } %>
+    <div id="chat_form">
+      <%= render partial: "form", locals: { plan: @plan, chat_message: @chat_message } %>
+    </div>
   </div>
 
   <!-- Turbo Stream -->
@@ -23,15 +25,17 @@
 
 <script>
   function scrollToBottom() {
-    const chatBox = document.getElementById("chat_message");
+    const chatBox = document.getElementById("chat_container");
     if (chatBox) {
       chatBox.scrollTop = chatBox.scrollHeight;
     }
   }
 
-  // 初回読み込み時と Turbo Stream 更新時にスクロール
+  // ページ読み込み時とTurbo Stream実行時にスクロール
   document.addEventListener("turbo:load", scrollToBottom);
   document.addEventListener("turbo:before-stream-render", () => {
-    requestAnimationFrame(scrollToBottom);
+    requestAnimationFrame(() => {
+      setTimeout(scrollToBottom, 10); // 少し遅延を入れる
+    });
   });
 </script>
