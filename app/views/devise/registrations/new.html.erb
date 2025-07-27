@@ -17,7 +17,7 @@
     <div class="mb-4">
       <%= f.label :"パスワード", class: "block text-sm font-medium mb-1" %>
       <% if @minimum_password_length %>
-        <em class="text-sm text-gray-500">(<%= @minimum_password_length %> characters minimum)</em>
+        <em class="text-sm text-gray-500">(<%= @minimum_password_length %>文字以上)</em>
       <% end %>
       <%= f.password_field :password, autocomplete: "new-password", class: "w-full border rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
     </div>

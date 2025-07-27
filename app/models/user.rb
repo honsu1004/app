@@ -4,8 +4,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   validates :name, presence: true, uniqueness: true
-  validates :email, presence: true
-  validates :password, presence: true
+  validates :email, presence: true, uniqueness: true
+  validates :password, presence: true, length: { minimum: 8 }
   has_many :plans
   has_many :plan_members
   has_many :joined_plans, through: :plan_members, source: :plan
