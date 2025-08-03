@@ -1,13 +1,14 @@
 class PlansController < ApplicationController
   before_action :authenticate_user!
   before_action :set_plan, only: [:show, :edit, :update, :destroy, :invite_members]
-  before_action :authorize_member!, only: [:edit, :update, :destroy]
+  before_action :authorize_member!, only: [:show, :edit, :update, :destroy]
 
   def index
     # オーナーまたはメンバーのプランを表示
-    @plans = Plan.joins(:plan_members)
-                 .where("plans.user_id = :uid OR plan_members.user_id = :uid", uid: current_user.id)
-                 .distinct
+    @plans = Plan
+             .joins("LEFT JOIN plan_members ON plans.id = plan_members.plan_id")
+             .where("plans.user_id = :user_id OR plan_members.user_id = :user_id", user_id: current_user.id)
+             .distinct
   end
 
   def new
@@ -55,15 +56,15 @@ class PlansController < ApplicationController
 
   def set_plan
     # オーナーまたはメンバーであれば取得
-    @plan = Plan.joins(:plan_members)
-                .where("plans.user_id = :uid OR plan_members.user_id = :uid", uid: current_user.id)
+    @plan = Plan.joins("LEFT JOIN plan_members ON plans.id = plan_members.plan_id")
+                .where("plans.user_id = :user_id OR plan_members.user_id = :user_id", user_id: current_user.id)
                 .distinct
                 .find(params[:id])
   end
 
   def authorize_member!
     unless @plan.user == current_user || @plan.members.include?(current_user)
-      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+      redirect_to plans_path, alert: "このプランにアクセスする権限がありません"
     end
   end
 
