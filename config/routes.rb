@@ -17,8 +17,10 @@ Rails.application.routes.draw do
     resources :schedule_items
   end
 
-  resources :plan_invitations, only: [] do
-    get :accept, on: :member
+  resources :plan_invitations, param: :token, only: [] do
+    member do
+      get :accept
+    end
   end
 
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
