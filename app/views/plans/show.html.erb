@@ -41,9 +41,11 @@
     <!-- メンバー -->
     <div class="bg-white p-4 md:p-6 rounded-xl shadow space-y-4">
       <h2 class="text-lg md:text-xl font-semibold text-gray-700">メンバー</h2>
-      <% @plans.members.each do |member| %>
-        <p class="text-gray-800">👤 <%= member.name %></p>
-      <% end %>
+      <ul class="space-y-2">
+        <% @plans.members.each do |member| %>
+          <p class="text-gray-600">👤 <%= member.name %></p>
+        <% end %>
+      </ul>  
     </div>
 
     <div class="mt-6">

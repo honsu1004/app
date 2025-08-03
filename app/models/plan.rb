@@ -15,11 +15,17 @@ class Plan < ApplicationRecord
   validates :end_at, presence: true
   validate :end_date_after_start_date
 
+  after_create :add_owner_as_member
+
   private
 
   def end_date_after_start_date
     if start_at && end_at && end_at < start_at
       errors.add(:end_at, "は開始日以降を指定してください")
     end
+  end
+
+  def add_owner_as_member
+    plan_members.create!(user: user)
   end
 end
