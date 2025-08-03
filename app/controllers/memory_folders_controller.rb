@@ -6,7 +6,7 @@ class MemoryFoldersController < ApplicationController
   def index
     @plan = Plan.find(params[:plan_id])
     @memory_folder = @plan.memory_folders.build
-    @memory_folders = @plan.memory_folders.where.not(id: nil) # ← これが重要！
+    @memory_folders = @plan.memory_folders
   end
 
   def show
@@ -35,7 +35,7 @@ class MemoryFoldersController < ApplicationController
   
   def destroy
     @memory_folder.destroy
-    redirect_to plan_memory_folder_path(@plan), notice: "フォルダを削除しました"
+    redirect_to plan_memory_folders_path(@plan), notice: "フォルダを削除しました"
   end
 
   def authorize_member!
@@ -52,7 +52,10 @@ class MemoryFoldersController < ApplicationController
   end
 
   def set_memory_folder
-    @memory_folder = @plan.memory_folders.find(params[:id])
+    @memory_folder = @plan.memory_folders.find_by(id: params[:id])
+    unless @memory_folder
+      redirect_to plan_memory_folders_path, alert: "フォルダは削除されました"
+    end
   end
 
   def memory_folder_params

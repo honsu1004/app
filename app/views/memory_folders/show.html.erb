@@ -1,5 +1,8 @@
 <div class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
-  <h1 class="text-2xl font-bold mb-6 text-center">「<%= @memory_folder.name %>」の思い出</h1>
+
+  <h1 class="text-2xl font-bold mb-6 text-center">
+    「<%= @memory_folder.name %>」の思い出
+  </h1>
 
   <!-- 思い出追加フォーム -->
   <%= render "memories/form", memory_folder: @memory_folder, memory: @memory %>
@@ -30,7 +33,7 @@
             <p class="text-sm text-gray-600">投稿者: <%= memory.user.name %></p>
           </div>
 
-          <!-- 削除ボタン -->
+          <!-- メモリ削除ボタン -->
           <%= link_to "削除",
               plan_memory_folder_memory_path(@plan, @memory_folder, memory), 
               method: :delete,
@@ -41,5 +44,16 @@
     <% end %>
   </div>
 
-  <%= link_to "← フォルダ一覧に戻る", plan_memory_folders_path(@memory_folder.plan), class: "inline-block mt-6 text-blue-600 hover:underline" %>
+  <!-- 戻る＆削除ボタンを横並びで配置 -->
+  <div class="mt-6 flex items-center justify-between">
+    <%= link_to "← フォルダ一覧に戻る",
+        plan_memory_folders_path(@memory_folder.plan),
+        class: "text-blue-600 hover:underline" %>
+
+    <%= link_to "フォルダを削除",
+        plan_memory_folder_path(@plan, @memory_folder),
+        method: :delete,
+        data: { confirm: "このフォルダを削除すると中の思い出も全て消えます。よろしいですか？" },
+        class: "bg-red-600 text-white px-3 py-1 rounded-lg shadow hover:bg-red-700 transition" %>
+  </div>
 </div>
