@@ -1,40 +1,45 @@
-<div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+<div class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
   <h1 class="text-2xl font-bold mb-6 text-center">思い出フォルダ一覧</h1>
 
-  <%= form_with model: [@plan, @memory_folder], local: true, class: "mb-6" do |f| %>
+  <!-- フォルダ作成フォーム -->
+  <%= form_with model: [@plan, @memory_folder], local: true, class: "mb-8" do |f| %>
     <div class="flex gap-4 items-center">
       <%= f.text_field :name, placeholder: "新しいフォルダ名", class: "flex-1 border px-4 py-2 rounded" %>
-      <%= f.file_field :media, multiple: true, class: "flex-1" %>
+      <%= f.file_field :media, multiple: true, class: "hidden", id: "memory_folder_media" %>
       <%= f.submit "作成", class: "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" %>
     </div>
   <% end %>
 
-  <ul class="space-y-4 mt-4">
+  <!-- フォルダ一覧 -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
     <% @memory_folders.select(&:persisted?).each do |folder| %>
-      <li class="flex justify-between items-center bg-gray-100 p-4 rounded">
-        <div>
-          <%= link_to folder.name, plan_memory_folder_path(@plan, folder), class: "text-blue-600 font-semibold" %>
-          <p class="text-gray-500 text-sm">作成日: <%= folder.created_at.strftime("%Y年%m月%d日") %></p>
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <% folder.memories.each do |memory| %>
-            <div class="mt-2">
-              <%= image_tag memory.url, class: "h-32 w-auto" if memory.url.present? %>
-              <%= button_to "画像削除", plan_memory_folder_memory_path(memory.memory_folder.plan, memory.memory_folder, memory),
-                  method: :delete,
-                  data: { confirm: "この画像を削除してもよろしいですか？" },
-                  class: "text-red-500 mt-2" %>
+      <div class="bg-gray-50 rounded-xl shadow hover:shadow-md transition overflow-hidden">
+        <%= link_to plan_memory_folder_path(@plan, folder), class: "block" do %>
+          <!-- サムネイル -->
+          <% thumb = folder.memories.find { |m| m.media.attached? }&.media %>
+          <% if thumb.present? && thumb.content_type.starts_with?("image/") %>
+            <%= image_tag thumb.variant(resize_to_limit: [300,200]), class: "w-full h-32 object-cover" %>
+          <% else %>
+            <div class="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+              画像なし
             </div>
           <% end %>
-        </div>
-      </li>
-    <% end %>
 
-    <% if @memory_folders.any? { |folder| !folder.persisted? } %>
-      <li class="text-red-500">保存されていないフォルダがあります</li>
+          <!-- フォルダ情報 -->
+          <div class="p-4">
+            <h2 class="font-semibold text-gray-800 truncate"><%= folder.name %></h2>
+            <p class="text-gray-500 text-xs mt-1">
+              写真: <%= folder.memories.select { |m| m.media&.content_type&.start_with?("image/") }.size %>枚 / 
+              動画: <%= folder.memories.select { |m| m.media&.content_type&.start_with?("video/") }.size %>本
+            </p>
+            <p class="text-gray-400 text-xs mt-1">
+              作成日: <%= folder.created_at.strftime("%Y/%m/%d") %>
+            </p>
+          </div>
+        <% end %>
+      </div>
     <% end %>
-  </ul>
+  </div>
 
-  <%= link_to "← プランに戻る", plan_path(@plan), class: "mt-6 inline-block text-blue-600" %>
+  <%= link_to "← プランに戻る", plan_path(@plan), class: "mt-8 inline-block text-blue-600 hover:underline" %>
 </div>

@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: {registrations: "users/registrations"}
   devise_scope :user do
     root to: 'devise/sessions#new'
   end
 
   resources :plans, only: [:index, :new, :create, :show, :edit, :update, :destroy] do
-    post 'members/invite', to: 'plan_members#invite', as: :invite_members
+    post :invite_members, on: :member
     resources :checklist_items, only: [:index, :create, :update, :destroy] do
       patch :toggle, on: :member
     end
@@ -15,6 +15,10 @@ Rails.application.routes.draw do
     resources :notes
     resources :chat_messages, only: [:index, :create, :destroy]
     resources :schedule_items
+  end
+
+  resources :plan_invitations, only: [] do
+    get :accept, on: :collection, param: :token
   end
 
   # Action Cableのルーティング設定
