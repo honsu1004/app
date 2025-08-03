@@ -66,3 +66,4 @@ gem "geocoder"
 gem "jquery-rails"
 gem "rubocop", require: false
 gem "devise-i18n"
+gem "aws-sdk-s3", require: false
