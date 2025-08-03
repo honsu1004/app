@@ -1,7 +1,7 @@
 class PlansController < ApplicationController
   before_action :authorize_member!, only: [:edit, :update, :destroy]
   before_action :authenticate_user!, only: [:new, :create]
-  before_action :set_plan, only: [:show, :edit, :update, :destroy]
+  before_action :set_plan, only: [:show, :edit, :update, :destroy, :invite_members]
 
   def index
     @plans = Plan.where(user: current_user) # ユーザーのプランを取得
@@ -43,6 +43,18 @@ class PlansController < ApplicationController
     redirect_to plans_path, notice: "プランを削除しました"
   end
 
+  def invite_members
+    @plan = Plan.find(params[:id])
+    email = params[:email]
+
+    invitation = @plan.plan_invitations.create!(email: email)
+
+    # 招待メール送信
+    PlanInvitationMailer.invite(invitation).deliver_later
+
+    redirect_to @plan, notice: "招待メールを送信しました！"
+  end
+
   def authorize_member!
     @plan = Plan.find(params[:id])
     unless @plan.members.include?(current_user) || @plan.user == current_user
@@ -54,6 +66,7 @@ class PlansController < ApplicationController
 
   def set_plan
     @plans = current_user.plans.find(params[:id])
+    @plan = Plan.find(params[:id])
   end
 
   def plan_params

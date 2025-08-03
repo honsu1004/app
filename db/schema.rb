@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_25_012618) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_030228) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -85,6 +85,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_012618) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "plan_invitations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "plan_id", null: false
+    t.string "email"
+    t.string "token"
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plan_id"], name: "index_plan_invitations_on_plan_id"
+  end
+
   create_table "plan_members", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "user_id"
     t.integer "plan_id"
@@ -139,5 +149,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_012618) do
   add_foreign_key "memories", "memory_folders"
   add_foreign_key "memories", "users"
   add_foreign_key "memory_folders", "plans"
+  add_foreign_key "plan_invitations", "plans"
   add_foreign_key "schedule_items", "users"
 end
