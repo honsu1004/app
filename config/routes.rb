@@ -18,8 +18,10 @@ Rails.application.routes.draw do
   end
 
   resources :plan_invitations, only: [] do
-    get :accept, on: :collection, param: :token
+    get :accept, on: :member
   end
+
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   # Action Cableのルーティング設定
   mount ActionCable.server => '/cable'
