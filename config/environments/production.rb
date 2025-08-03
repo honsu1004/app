@@ -1,6 +1,10 @@
 require "active_support/core_ext/integer/time"
 
-Rails.application.routes.default_url_options[:host] = 'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com'
+Rails.application.configure do
+  # Default URL
+  Rails.application.routes.default_url_options[:host] =
+    'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com'
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -45,7 +49,6 @@ Rails.application.routes.default_url_options[:host] = 'sleepy-atoll-32838-cdb528
   config.action_cable.allowed_request_origins = [ "https://sleepy-atoll-32838-cdb52831bb6a.herokuapp.com" ]
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
@@ -79,18 +82,21 @@ Rails.application.routes.default_url_options[:host] = 'sleepy-atoll-32838-cdb528
   config.action_mailer.perform_caching = false
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              'smtp.example.com', # SMTPサーバーのアドレス
-    port:                 587, # ポート番号
+    address:              'smtp.example.com',
+    port:                 587,
     domain:               'example.com',
-    user_name:            ENV['SMTP_USERNAME'], # 環境変数からユーザー名を取得
-    password:             ENV['SMTP_PASSWORD'], # 環境変数からパスワードを取得
+    user_name:            ENV['SMTP_USERNAME'],
+    password:             ENV['SMTP_PASSWORD'],
     authentication:       'plain',
-    enable_starttls_auto: true}
+    enable_starttls_auto: true
+  }
   
-  config.action_mailer.default_url_options = {host: 'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com',protocol: 'https'}
+  config.action_mailer.default_url_options = {
+    host: 'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com',
+    protocol: 'https'
+  }
 
   # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
@@ -108,9 +114,8 @@ Rails.application.routes.default_url_options[:host] = 'sleepy-atoll-32838-cdb528
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
+  #   "example.com",
+  #   /.*\.example\.com/
   # ]
-  # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
