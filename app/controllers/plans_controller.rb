@@ -1,21 +1,23 @@
 class PlansController < ApplicationController
-  before_action :authorize_member!, only: [:edit, :update, :destroy]
-  before_action :authenticate_user!, only: [:new, :create]
+  before_action :authenticate_user!
   before_action :set_plan, only: [:show, :edit, :update, :destroy, :invite_members]
+  before_action :authorize_member!, only: [:edit, :update, :destroy]
 
   def index
-    @plans = Plan.where(user: current_user) # ユーザーのプランを取得
+    # オーナーまたはメンバーのプランを表示
+    @plans = Plan.joins(:plan_members)
+                 .where("plans.user_id = :uid OR plan_members.user_id = :uid", uid: current_user.id)
+                 .distinct
   end
 
   def new
-    @plans = Plan.new
+    @plan = Plan.new
   end
 
   def create
-    @plans = Plan.new(plan_params)
-    @plans.user = current_user # セキュリティ的にも controller で上書きするのがベスト
+    @plan = current_user.plans.build(plan_params)
 
-    if @plans.save
+    if @plan.save
       redirect_to plans_path, notice: 'プランが作成されました'
     else
       render :new, status: :unprocessable_entity
@@ -23,53 +25,49 @@ class PlansController < ApplicationController
   end
 
   def show
-    @plan = Plan.find(params[:id]) 
+    # set_plan で取得済み
   end
 
   def edit
   end
 
   def update
-    if @plans.update(plan_params)
-      redirect_to @plans, notice: t('plans.update')
+    if @plan.update(plan_params)
+      redirect_to @plan, notice: "プランを更新しました"
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @plans = Plan.find(params[:id])
-    @plans.destroy
+    @plan.destroy
     redirect_to plans_path, notice: "プランを削除しました"
   end
 
   def invite_members
-    @plan = Plan.find(params[:id])
     email = params[:email]
-
     invitation = @plan.plan_invitations.create!(email: email)
-
-    # 招待メール送信
     PlanInvitationMailer.invite(invitation).deliver_later
-
     redirect_to @plan, notice: "招待メールを送信しました！"
-  end
-
-  def authorize_member!
-    @plan = Plan.find(params[:id])
-    unless @plan.members.include?(current_user) || @plan.user == current_user
-      redirect_to plans_path, alert: "このプランを編集する権限がありません"
-    end
   end
 
   private
 
   def set_plan
-    @plans = current_user.plans.find(params[:id])
-    @plan = Plan.find(params[:id])
+    # オーナーまたはメンバーであれば取得
+    @plan = Plan.joins(:plan_members)
+                .where("plans.user_id = :uid OR plan_members.user_id = :uid", uid: current_user.id)
+                .distinct
+                .find(params[:id])
+  end
+
+  def authorize_member!
+    unless @plan.user == current_user || @plan.members.include?(current_user)
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+    end
   end
 
   def plan_params
-    params.require(:plan).permit(:title, :description, :start_at, :end_at, :user_id)
+    params.require(:plan).permit(:title, :description, :start_at, :end_at)
   end
 end

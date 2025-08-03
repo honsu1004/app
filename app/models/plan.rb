@@ -1,4 +1,7 @@
 class Plan < ApplicationRecord
+  def accessible_by?(user)
+    user_id == user.id || members.exists?(user.id)
+  end
   belongs_to :user
   has_many :plan_members, dependent: :destroy
   has_many :members, through: :plan_members, source: :user

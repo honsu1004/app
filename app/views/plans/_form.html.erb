@@ -1,5 +1,5 @@
-<%= form_with model: plan, local: true do |f| %>
-  <% if plan.errors.any? %>
+<%= form_with model: @plan, local: true do |f| %>
+  <% if @plan.errors.any? %>
     <div class="mb-4 text-red-600">
       <h2 class="font-bold mb-2">エラーがあります：</h2>
       <ul class="list-disc list-inside">
@@ -41,10 +41,10 @@
 
     <!-- ボタン -->
     <div class="flex justify-between pt-4">
-      <%= f.submit plan.new_record? ? "作成する" : "更新する", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+      <%= f.submit @plan.new_record? ? "作成する" : "更新する", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
 
-      <% unless plan.new_record? %>
-        <%= link_to "削除", plan_path(@plans), method: :delete, data: { confirm: "本当に削除しますか？" },
+      <% unless @plan.new_record? %>
+        <%= link_to "削除", plan_path(@plan), method: :delete, data: { confirm: "本当に削除しますか？" },
             class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded" %>
       <% end %>
     </div>
