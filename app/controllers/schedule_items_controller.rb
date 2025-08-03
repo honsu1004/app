@@ -1,6 +1,6 @@
 class ScheduleItemsController < ApplicationController
-  before_action :authorize_member!, only: [ :edit, :update, :destroy ]
   before_action :set_plan
+  before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
     @schedule_items = @plan.schedule_items.order(:day_number, :start_time)
@@ -57,5 +57,12 @@ class ScheduleItemsController < ApplicationController
 
   def schedule_item_params
     params.require(:schedule_item).permit(:day_number, :start_time, :end_time, :address)
+  end
+
+  def authorize_member!
+    # 例: planのメンバーまたは作成者だけ許可
+    unless @plan.users.include?(current_user) || @plan.user == current_user
+      redirect_to root_path, alert: "権限がありません。"
+    end
   end
 end

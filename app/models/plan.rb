@@ -2,6 +2,7 @@ class Plan < ApplicationRecord
   belongs_to :user
   has_many :plan_members, dependent: :destroy
   has_many :members, through: :plan_members, source: :user
+  has_many :users, through: :plan_members
   has_many :plan_invitations
   has_many :schedule_items, dependent: :destroy
   has_many :memory_folders, dependent: :destroy
