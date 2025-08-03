@@ -1,6 +1,6 @@
-<div class="flex min-h-screen bg-gray-100">
-  <!-- サイドバー -->
-  <aside class="w-64 bg-white shadow-md p-6">
+<div class="flex flex-col md:flex-row min-h-screen bg-gray-100">
+  <!-- サイドバー（PCのみ表示） -->
+  <aside class="hidden md:block w-64 bg-white shadow-md p-6">
     <h2 class="text-lg font-semibold mb-4">メニュー</h2>
     <nav class="space-y-3 text-gray-700">
       <%= link_to "スケジュール", plan_schedule_items_path(@plan), class: "block hover:text-blue-600" %>
@@ -12,40 +12,42 @@
   </aside>
 
   <!-- メインコンテンツ -->
-  <main class="flex-1 p-8">
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8"> <!-- 下部ナビ分だけ余白を確保 -->
     <!-- ヘッダー -->
     <div class="flex justify-between items-start mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2"><%= @plans.title %></h1>
-        <p class="text-sm text-gray-500">旅行期間: <%= @plans.start_at %> 〜 <%= @plans.end_at %></p>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2"><%= @plans.title %></h1>
+        <p class="text-sm text-gray-500">
+          旅行期間: <%= @plans.start_at.strftime("%Y/%m/%d") %> 〜 <%= @plans.end_at.strftime("%Y/%m/%d") %>
+        </p>
       </div>
       <div class="flex gap-2">
-        <%= link_to edit_plan_path(@plans), class: "bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg" do %>
+        <%= link_to edit_plan_path(@plans), class: "bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg text-sm md:text-base" do %>
           ✏️ 編集
         <% end %>
         <%= link_to plan_path(@plans), method: :delete, data: { confirm: "本当に削除しますか？" },
-                    class: "bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg" do %>
+                    class: "bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg text-sm md:text-base" do %>
           🗑️ 削除
         <% end %>
       </div>
     </div>
 
     <!-- 説明 -->
-    <div class="bg-white p-6 rounded-xl shadow space-y-4 mb-8">
-      <h2 class="text-xl font-semibold text-gray-700">説明</h2>
+    <div class="bg-white p-4 md:p-6 rounded-xl shadow space-y-4 mb-8">
+      <h2 class="text-lg md:text-xl font-semibold text-gray-700">説明</h2>
       <p class="text-gray-800 whitespace-pre-wrap"><%= simple_format(@plans.description) %></p>
     </div>
 
     <!-- メンバー -->
-    <div class="bg-white p-6 rounded-xl shadow space-y-4">
-      <h2 class="text-xl font-semibold text-gray-700">メンバー</h2>
+    <div class="bg-white p-4 md:p-6 rounded-xl shadow space-y-4">
+      <h2 class="text-lg md:text-xl font-semibold text-gray-700">メンバー</h2>
       <% @plans.members.each do |member| %>
-        <p class="text-gray-800">👤 <%= member.name %>（<%= member.email %>）</p>
+        <p class="text-gray-800">👤 <%= member.name %></p>
       <% end %>
     </div>
 
     <div class="mt-6">
-      <h3 class="text-lg font-semibold mb-2">メンバーを招待</h3>
+      <h3 class="text-base md:text-lg font-semibold mb-2">メンバーを招待</h3>
       <%= form_with url: plan_invite_members_path(@plan), method: :post, local: true do |f| %>
         <div class="flex gap-2">
           <%= f.email_field :email, placeholder: "メールアドレス", required: true,
@@ -61,4 +63,23 @@
           class: "text-blue-500 hover:underline text-sm" %>
     </div>
   </main>
+
+  <!-- スマホ用下部固定ナビ -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg flex justify-around py-2">
+    <%= link_to plan_schedule_items_path(@plan), class: "flex flex-col items-center text-gray-600 hover:text-blue-600 text-xs" do %>
+      📅<span>スケジュール</span>
+    <% end %>
+    <%= link_to plan_checklist_items_path(@plan), class: "flex flex-col items-center text-gray-600 hover:text-blue-600 text-xs" do %>
+      👜<span>持ち物</span>
+    <% end %>
+    <%= link_to plan_memory_folders_path(@plan), class: "flex flex-col items-center text-gray-600 hover:text-blue-600 text-xs" do %>
+      📷<span>思い出</span>
+    <% end %>
+    <%= link_to plan_notes_path(@plan), class: "flex flex-col items-center text-gray-600 hover:text-blue-600 text-xs" do %>
+      📝<span>ノート</span>
+    <% end %>
+    <%= link_to plan_chat_messages_path(@plan), class: "flex flex-col items-center text-gray-600 hover:text-blue-600 text-xs" do %>
+      💬<span>チャット</span>
+    <% end %>
+  </nav>
 </div>
