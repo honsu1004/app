@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  layout :layout_by_resource
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   protected
@@ -10,5 +11,11 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     plans_path # 旅行計画一覧のパスに変更
+  end
+
+  private
+
+  def layout_by_resource
+    devise_controller? ? "devise" : "application"
   end
 end
