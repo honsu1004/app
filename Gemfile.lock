@@ -402,7 +402,7 @@ DEPENDENCIES
   jquery-rails
   jsbundling-rails
   letter_opener
-  letter_opener_web (~> 3.0)
+  letter_opener_web
   mysql2
   puma (>= 5.0)
   rails (~> 8.0.2)
