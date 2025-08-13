@@ -81,12 +81,13 @@ Rails.application.configure do
   # caching is enabled.
   config.action_mailer.perform_caching = false
   config.action_mailer.delivery_method = :smtp
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.smtp_settings = {
     address:              'smtp.gmail.com',
     port:                 587,
     domain:               'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com',
-    user_name:            ENV['MAILER_SENDER'],
-    password:             ENV['MAILER_PASSWORD'],
+    user_name:            ENV['SMTP_USERNAME'],
+    password:             ENV['SMTP_PASSWORD'],
     authentication:       'plain',
     enable_starttls_auto: true
   }
