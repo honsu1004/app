@@ -10,7 +10,9 @@ Rails.application.routes.draw do
       patch :toggle, on: :member
     end
     resources :memory_folders do
-      resources :memories, only: [:index, :create, :edit, :destroy]
+      resources :memories, only: [:index, :create, :edit, :destroy] do
+        resources :attachments, only: [:destroy], controller: 'memory_attachments'
+      end
     end
     resources :notes
     resources :chat_messages, only: [:index, :create, :destroy]

@@ -1,11 +1,10 @@
-<%= form_with model: [@plan, memory_folder, memory], local: true, html: { multipart: true }, class: "space-y-4" do |f| %>
+<%= form_with model: [@plan, memory_folder, memory], local: true, html: { multipart: true }, class: "space-y-4", date: { turbo: false } do |f| %>
   <div>
     <%= f.label :media, "画像または動画", class: "block mb-1 font-semibold" %>
     <%= f.file_field :media, 
         multiple: true, 
         class: "w-full border px-4 py-2 rounded", 
-        accept: "image/*,video/*",
-        name: "memory[media][]" %>
+        accept: "image/*,video/*" %>
     <p class="text-sm text-gray-500 mt-1">※ 1ファイルあたり最大2MBまで</p>
   </div>
 

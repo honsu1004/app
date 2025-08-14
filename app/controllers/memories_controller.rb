@@ -8,20 +8,35 @@ class MemoriesController < ApplicationController
   end
 
   def create
-    Rails.logger.debug "Received params: #{params[:memory][:media].inspect}"
+    Rails.logger.debug "=== Media Upload Debug ==="
+    Rails.logger.debug "Raw media params: #{params[:memory][:media].inspect}"
+  
     @memory_folder = MemoryFolder.find(params[:memory_folder_id])
-    @memory = @memory_folder.memories.new(memory_params)
+    @memory = @memory_folder.memories.new(memory_params.except(:media))
     @memory.user = current_user
 
+    # 複数画像の処理
     if params[:memory][:media].present?
-      params[:memory][:media].each do |file|
-        @memory.media.attach(file) if file.present?
+      # 空の値、nil、空文字列を確実に除外
+      valid_files = params[:memory][:media].compact.reject { |file| 
+        file.blank? || !file.respond_to?(:tempfile) 
+      }
+    
+      Rails.logger.debug "Valid files count: #{valid_files.length}"
+      Rails.logger.debug "Valid files: #{valid_files.map(&:original_filename)}"
+    
+      # 有効なファイルのみをアタッチ
+      valid_files.each do |file|
+        @memory.media.attach(file)
       end
     end
 
     if @memory.save
-      redirect_to plan_memory_folder_path(@memory_folder.plan, @memory_folder), notice: "思い出を追加しました"
+      Rails.logger.debug "Memory saved successfully with #{@memory.media.count} attachments"
+      redirect_to plan_memory_folder_path(@memory_folder.plan, @memory_folder), 
+                  notice: "思い出を追加しました（#{@memory.media.count}枚の画像）"
     else
+      Rails.logger.debug "Memory save failed: #{@memory.errors.full_messages}"
       @memories = @memory_folder.memories.with_attached_media
       render "memory_folders/show", status: :unprocessable_entity
     end
@@ -34,12 +49,21 @@ class MemoriesController < ApplicationController
   def destroy
     @memory_folder = @memory.memory_folder
     @plan = @memory_folder.plan
-    
-    # 画像とメモリを削除
-    @memory.media.purge if @memory.media.attached?
-    @memory.destroy
 
-    redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: '思い出が削除されました'
+   # 削除前にメディアファイルの存在確認
+    if @memory.media.attached?
+      @memory.media.purge
+    end
+
+    # メモリレコードの削除
+    if @memory.destroy
+      respond_to do |format|
+        format.html { redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: '思い出が削除されました' }
+        format.turbo_stream # app/views/memories/destroy.turbo_stream.erb を呼び出し
+      end
+    else
+      redirect_to plan_memory_folder_path(@plan, @memory_folder), alert: '削除に失敗しました'
+    end
   end
 
   def authorize_member!
@@ -60,10 +84,6 @@ class MemoriesController < ApplicationController
   end
 
   def memory_params
-    params.require(:memory).permit(:url, media: []).tap do |whitelisted|
-      if whitelisted[:media].present?
-        whitelisted[:media] = whitelisted[:media].reject(&:blank?)
-      end
-    end
+    params.require(:memory).permit(:url, media: [])
   end
 end

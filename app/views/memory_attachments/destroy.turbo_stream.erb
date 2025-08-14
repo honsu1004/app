@@ -1,0 +1,18 @@
+<!-- 個別画像を削除 -->
+<%= turbo_stream.remove "attachment-#{params[:id]}" %>
+
+<!-- 思い出が削除された場合は、思い出全体を削除 -->
+<% if @memory_deleted %>
+  <%= turbo_stream.remove "memory-#{params[:memory_id]}" %>
+<% end %>
+
+<!-- フラッシュメッセージを更新 -->
+<%= turbo_stream.update "flash-messages" do %>
+  <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+    <% if @memory_deleted %>
+      画像を削除しました。思い出に画像がなくなったため思い出を削除しました。
+    <% else %>
+      画像を削除しました
+    <% end %>
+  </div>
+<% end %>
