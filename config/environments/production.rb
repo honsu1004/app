@@ -119,4 +119,10 @@ Rails.application.configure do
   #   /.*\.example\.com/
   # ]
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  config.session_store :cookie_store, 
+    key: '_your_app_session',
+    secure: Rails.env.production?,
+    httponly: true,
+    same_site: :strict
 end
