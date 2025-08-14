@@ -16,9 +16,14 @@
       <div class="bg-gray-50 rounded-xl shadow hover:shadow-md transition overflow-hidden">
         <%= link_to plan_memory_folder_path(@plan, folder), class: "block" do %>
           <!-- サムネイル -->
-          <% thumb = folder.memories.find { |m| m.media.attached? }&.media %>
-          <% if thumb.present? && thumb.content_type.starts_with?("image/") %>
-            <%= image_tag thumb.variant(resize_to_limit: [300,200]), class: "w-full h-32 object-cover" %>
+          <% memory_with_image = folder.memories.find do |memory|
+                memory.media.attached? &&
+                memory.media.any? { |file| file.content_type.starts_with?("image/") }
+            end %>
+
+          <% if memory_with_image.present? %>
+            <% first_image = memory_with_image.media.find { |file| file.content_type.starts_with?("image/") } %>
+            <%= image_tag first_image.variant(resize_to_limit: [300,200]), class: "w-full h-32 object-cover" %>
           <% else %>
             <div class="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
               画像なし
@@ -28,10 +33,9 @@
 
           <!-- フォルダ情報 -->
           <div class="p-4">
-            <h2 class="font-semibold text-gray-800 truncate"><%= folder.name %></h2>
+            <h3 class="font-semibold text-gray-800 truncate"><%= folder.name %></h3>
             <p class="text-gray-500 text-xs mt-1">
-              写真: <%= folder.memories.select { |m| m.media&.content_type&.start_with?("image/") }.size %>枚 / 
-              動画: <%= folder.memories.select { |m| m.media&.content_type&.start_with?("video/") }.size %>本
+              写真: <%= folder.image_count %>枚 / 動画: <%= folder.video_count %>本
             </p>
             <p class="text-gray-400 text-xs mt-1">
               作成日: <%= folder.created_at.strftime("%Y/%m/%d") %>

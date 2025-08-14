@@ -12,15 +12,9 @@
     <% @memories.each do |memory| %>
       <% if memory.persisted? && memory.id.present? %>
         <div class="bg-gray-50 rounded-xl shadow hover:shadow-md transition relative overflow-hidden">
-          <% if memory.media.attached? %>
-            <% if memory.media.content_type.starts_with?("image/") %>
-              <%= link_to url_for(memory.media), target: "_blank" do %>
-                <%= image_tag memory.media.variant(resize_to_limit: [400, 300]), class: "w-full h-40 object-cover hover:opacity-80 transition" %>
-              <% end %>
-            <% elsif memory.media.content_type.starts_with?("video/") %>
-              <video controls class="w-full h-40 object-cover">
-                <source src="<%= url_for(memory.media) %>" type="<%= memory.media.content_type %>">
-              </video>
+          <% if memory.media.attached? && memory.media.first.content_type.starts_with?("image/") %>
+            <%= link_to url_for(memory.media.first), target: "_blank" do %>
+              <%= image_tag memory.media.first.variant(resize_to_limit: [400, 300]), class: "w-full h-40 object-cover hover:opacity-80 transition" %>
             <% end %>
           <% elsif memory.url.present? %>
             <p class="text-sm break-all p-4"><%= link_to memory.url, memory.url, target: "_blank", class: "text-blue-500 underline" %></p>

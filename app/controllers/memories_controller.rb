@@ -4,20 +4,25 @@ class MemoriesController < ApplicationController
   before_action :authorize_member!, only: [ :index, :create, :edit, :destroy ]
 
   def index
-    @memories = @memory_folder.memories.includes(media_attachment: :blob)
+    @memories = @memory_folder.memories.with_attached_media
   end
 
   def create
+    Rails.logger.debug "Received params: #{params[:memory][:media].inspect}"
     @memory_folder = MemoryFolder.find(params[:memory_folder_id])
     @memory = @memory_folder.memories.new(memory_params)
     @memory.user = current_user
 
-    Rails.logger.debug "== Params for memory: #{memory_params.inspect}"
+    if params[:memory][:media].present?
+      params[:memory][:media].each do |file|
+        @memory.media.attach(file) if file.present?
+      end
+    end
 
     if @memory.save
       redirect_to plan_memory_folder_path(@memory_folder.plan, @memory_folder), notice: "思い出を追加しました"
     else
-      @memories = @memory_folder.memories.includes(media_attachment: :blob)
+      @memories = @memory_folder.memories.with_attached_media
       render "memory_folders/show", status: :unprocessable_entity
     end
   end
@@ -55,6 +60,10 @@ class MemoriesController < ApplicationController
   end
 
   def memory_params
-    params.require(:memory).permit(:media, :url, :caption)
+    params.require(:memory).permit(:url, media: []).tap do |whitelisted|
+      if whitelisted[:media].present?
+        whitelisted[:media] = whitelisted[:media].reject(&:blank?)
+      end
+    end
   end
 end

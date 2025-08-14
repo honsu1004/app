@@ -73,7 +73,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_030228) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["plan_id"], name: "index_memory_folders_on_plan_id"
+    t.index ["user_id"], name: "index_memory_folders_on_user_id"
   end
 
   create_table "notes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
