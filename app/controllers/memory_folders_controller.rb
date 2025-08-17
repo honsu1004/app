@@ -10,14 +10,15 @@ class MemoryFoldersController < ApplicationController
   end
 
   def show
-    @memory_folder = current_user.memory_folders.find(params[:id])
+    @plan = current_user.plans.find(params[:plan_id])
+    @memory_folder = @plan.memory_folders.find(params[:id])
     @memory = @memory_folder.memories.new
     @memories = @memory_folder.memories.with_attached_media
   end
 
   def create
-    @memory_folder = @plan.memory_folders.new(memory_folder_params)
-    @memory_folder.user = current_user
+    @plan = current_user.plans.find(params[:plan_id])
+    @memory_folder = @plan.memory_folders.build(memory_folder_params)
 
     if @memory_folder.save
       redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: "フォルダを作成しました"

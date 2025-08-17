@@ -1,8 +1,9 @@
 class MemoryFolder < ApplicationRecord
-  belongs_to :user
   belongs_to :plan
   has_many :memories, dependent: :destroy
   has_many_attached :media, dependent: :purge_later
+
+  delegate :user, to: :plan
 
   validates :name, presence: true
 
