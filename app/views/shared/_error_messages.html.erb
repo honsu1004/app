@@ -1,0 +1,37 @@
+<% if object.errors.any? %>
+  <div class="alert alert-danger">
+    <div class="d-flex align-items-center mb-2">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <strong>
+        <% if object.is_a?(Memory) %>
+          画像のアップロードでエラーが発生しました
+        <% else %>
+          入力内容にエラーがあります
+        <% end %>
+      </strong>
+    </div>
+    
+    <ul class="mb-0">
+      <% object.errors.full_messages.each do |message| %>
+        <li>
+          <% if object.is_a?(Memory) && message.include?("Media") %>
+            <%= message.gsub("Media ", "画像").gsub("のファイルサイズが大きすぎます（最大: 5MB）", "のサイズが5MBを超えています。画像を圧縮してください。") %>
+          <% else %>
+            <%= message %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+    
+    <% if object.is_a?(Memory) %>
+      <div class="mt-2">
+        <small class="text-muted">
+          💡 <strong>ヒント:</strong> 
+          <a href="https://tinypng.com/" target="_blank">TinyPNG</a> や 
+          <a href="https://squoosh.app/" target="_blank">Squoosh</a> 
+          で画像を圧縮できます
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
