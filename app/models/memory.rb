@@ -5,6 +5,12 @@ class Memory < ApplicationRecord
 
   validates :url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: 'は有効なURLを入力してください' }, allow_blank: true
 
+  validates :media, attachment: {
+    purge: true,
+    content_type: %r{\Aimage/(png|jpeg|gif)\Z},
+    maximum: 2.megabytes
+  }
+
   before_destroy :purge_media
 
   private
