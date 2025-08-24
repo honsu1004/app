@@ -1,42 +1,47 @@
 class MemoriesController < ApplicationController
-  before_action :set_memory_folder
-  before_action :set_memory, only: [:edit, :destroy]
+  before_action :set_plan_and_folder
   before_action :authorize_member!, only: [ :index, :create, :edit, :destroy ]
 
   def index
-    @memories = @memory_folder.memories.with_attached_media
+    @plan = current_user.plans.find(params[:plan_id])
+    @memory_folder = @plan.memory_folders.find(params[:memory_folder_id])
+    @memories = @memory_folder.memories.order(created_at: :desc)
   end
 
   def create
-    Rails.logger.debug "=== Media Upload Debug ==="
-    Rails.logger.debug "Raw media params: #{params[:memory][:media].inspect}"
-  
-    @memory_folder = MemoryFolder.find(params[:memory_folder_id])
-    @memory = @memory_folder.memories.new(memory_params.except(:media))
+    @memory = @memory_folder.memories.build(memory_params.except(:media))
     @memory.user = current_user
 
-    # 複数画像の処理(バリデーション強化)
-    if params[:memory][:media].present?
-      valid_files = validate_and_filter_files(params[:memory][:media])
-    
-      Rails.logger.debug "Valid files count: #{valid_files.length}"
-      Rails.logger.debug "Valid files: #{valid_files.map(&:original_filename)}"
-    
-      # 有効なファイルのみをアタッチ
-      valid_files.each do |file|
+    Rails.logger.debug "=== Memory Creation Debug ==="
+    Rails.logger.debug "Raw media params: #{memory_params[:media].inspect}"
+
+    # 空要素を除去してからファイル処理
+    uploaded_files = memory_params[:media]&.reject(&:blank?) || []
+    Rails.logger.debug "Filtered files: #{uploaded_files.inspect}"
+    Rails.logger.debug "Valid files count: #{uploaded_files.count}"
+
+    # 画像が選択されているかチェック
+    if uploaded_files.empty?
+      @memory.errors.add(:media, "画像を選択してください")
+      @memories = @memory_folder.memories.order(created_at: :desc)
+      render 'memory_folders/show', status: :unprocessable_entity
+      return
+    end
+
+    # ファイルをアタッチ
+    uploaded_files.each do |file|
+      if file.present? && file.respond_to?(:original_filename) && file.original_filename.present?
         @memory.media.attach(file)
+        Rails.logger.debug "Attached file: #{file.original_filename}"
       end
     end
 
     if @memory.save
-      Rails.logger.debug "Memory saved successfully with #{@memory.media.count} attachments"
-      redirect_to plan_memory_folder_path(@memory_folder.plan, @memory_folder), 
-                  notice: "思い出を追加しました（#{@memory.media.count}枚の画像）"
+      redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: "思い出を追加しました"
     else
       Rails.logger.debug "Memory save failed: #{@memory.errors.full_messages}"
-      error_messages = @memory.errors.full_messages.join(',')
-      @memories = @memory_folder.memories.with_attached_media
-      render "memory_folders/show", status: :unprocessable_entity
+      @memories = @memory_folder.memories.order(created_at: :desc)
+      render 'memory_folders/show', status: :unprocessable_entity
     end
   end
 
@@ -45,66 +50,16 @@ class MemoriesController < ApplicationController
   end
 
   def destroy
-    @memory_folder = @memory.memory_folder
-    @plan = @memory_folder.plan
-
-   # 削除前にメディアファイルの存在確認
-    if @memory.media.attached?
-      @memory.media.purge
-      Rails.logger.info "Media files purged for memory ID: #{@memory.id}"
-    end
-
-    # メモリレコードの削除
-    if @memory.destroy
-      respond_to do |format|
-        format.html { redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: '思い出が削除されました' }
-        format.turbo_stream # app/views/memories/destroy.turbo_stream.erb を呼び出し
-      end
-    else
-      redirect_to plan_memory_folder_path(@plan, @memory_folder), alert: '削除に失敗しました'
-    end
+    @memory = @memory_folder.memories.find(params[:id])
+    @memory.destroy
+    redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: "思い出を削除しました"
   end
 
   private
 
-  def validate_and_filter_files(uploaded_files)
-    max_size = 2.megabytes
-    allowed_types = ['image/jpeg', 'image/png', 'image/gif']
-    valid_files = []
-  
-    uploaded_files.compact.each do |file|
-      next if file.blank? || !file.respond_to?(:tempfile)
-    
-      # 空ファイルチェック
-      if file.size == 0
-        flash.now[:alert] = "#{file.original_filename} は空のファイルです"
-        next
-      end
-    
-      # ファイルサイズチェック
-      if file.size > max_size
-        flash.now[:alert] = "#{file.original_filename} のサイズが大きすぎます（最大2MBまで）"
-        next
-      end
-    
-      # ファイル形式チェック
-      unless allowed_types.include?(file.content_type)
-        flash.now[:alert] = "#{file.original_filename} は対応していない形式です（JPEG、PNG、GIFのみ）"
-        next
-      end
-    
-      valid_files << file
-    end
-  
-    valid_files
-  end
-
-  def set_memory_folder
-    @memory_folder = MemoryFolder.find(params[:memory_folder_id])
-  end
-
-  def set_memory
-    @memory = @memory_folder.memories.find(params[:id])
+  def set_plan_and_folder
+    @plan = current_user.plans.find(params[:plan_id])
+    @memory_folder = @plan.memory_folders.find(params[:memory_folder_id])
   end
 
   def memory_params

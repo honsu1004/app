@@ -56,6 +56,10 @@ class MemoryFoldersController < ApplicationController
 
   private
 
+  def memory_params
+    params.require(:memory).permit(:title, :description, media: [])
+  end
+
   def set_plan
     @plan = Plan.find(params[:plan_id])
   end

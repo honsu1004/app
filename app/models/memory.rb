@@ -5,18 +5,30 @@ class Memory < ApplicationRecord
 
   validates :url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: 'は有効なURLを入力してください' }, allow_blank: true
 
-  validates :media, attachment: {
-    purge: true,
-    content_type: %r{\Aimage/(png|jpeg|gif)\Z},
-    maximum: 2.megabytes
-  }
-
   before_destroy :purge_media
 
   private
 
-  def purge_media
-    media.purge
+  def validate_media_presence
+    errors.add(:media, "を選択してください") unless media.attached?
   end
-  # validates :url, format: URI::DEFAULT_PARSER.make_regexp(%w[http https]), allow_blank: true
+
+  def validate_media_size_and_format
+    return unless media.attached?
+
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    max_size = 5.megabytes
+
+    media.each do |file|
+      # ファイルサイズチェック
+      if file.blob.byte_size > max_size
+        errors.add(:media, "のファイルサイズが大きすぎます（最大: 5MB）")
+      end
+
+      # ファイル形式チェック
+      unless allowed_types.include?(file.blob.content_type)
+        errors.add(:media, "のファイル形式が無効です（JPEG, PNG, GIF, WebP のみ対応）")
+      end
+    end
+  end
 end

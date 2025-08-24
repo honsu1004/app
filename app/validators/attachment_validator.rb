@@ -2,26 +2,50 @@ class AttachmentValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return unless value.attached?
 
-    if value.respond_to?(:each)
-      value.each { |attachment| validate_attachment(record, attribute, attachment) }
-    else
-      validate_attachment(record, attribute, value)
+    has_error = false
+
+    if options[:maximum]
+      if value.is_a?(ActiveStorage::Attached::Many)
+        value.each do |one_value|
+          unless validate_maximum(record, attribute, one_value)
+            has_error = true
+            break
+          end
+        end
+      else
+        has_error = true unless validate_maximum(record, attribute, value)
+      end
+    end
+
+    if options[:content_type]
+      if value.is_a?(ActiveStorage::Attached::Many)
+        value.each do |one_value|
+          unless validate_content_type(record, attribute, one_value)
+            has_error = true
+            break
+          end
+        end
+      else
+        has_error = true unless validate_content_type(record, attribute, value)
+      end
     end
   end
 
   private
 
-  def validate_attachment(record, attribute, attachment)
-    if options[:maximum] && attachment.blob.byte_size > options[:maximum]
-      recors.errors.add(attribute, "のファイルサイズが大きすぎます(最大#{options[:maximum] / 1.megabyte}MBまで)")
+  def validate_maximum(record, attribute, value)
+    if value.blob.byte_size > options[:maximum]
+      record.errors.add(attribute, "のファイルサイズが大きすぎます（最大: #{options[:maximum] / 1.megabyte}MB）")
+      return false
     end
+    true
+  end
 
-    if options[:content_type] && !attachment.blob.content_type.match?(options[:content_type])
-      record.errors.add(attribute, "の形式が正しくありません(JPEG、PND、GIFのみ対応)")
+  def validate_content_type(record, attribute, value)
+    unless options[:content_type].include?(value.blob.content_type)
+      record.errors.add(attribute, "のファイル形式が無効です")
+      return false
     end
-
-    if options[:purge] && attachment.blob.byte_size == 0
-      record.errors.add(attribute, "が空のファイルです")
-    end
+    true
   end
 end
