@@ -3,12 +3,21 @@
 
   <!-- フォルダ作成フォーム -->
   <%= form_with model: [@plan, @memory_folder], local: true, class: "mb-8" do |f| %>
-  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
     <div class="flex gap-4 items-center">
       <%= f.text_field :name, placeholder: "新しいフォルダ名", class: "flex-1 border px-4 py-2 rounded" %>
-      <%= f.file_field :media, multiple: true, class: "hidden", id: "memory_folder_media" %>
       <%= f.submit "作成", class: "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" %>
     </div>
+    
+    <!-- エラーメッセージ表示 -->
+    <% if @memory_folder.errors.any? %>
+      <div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <ul>
+          <% @memory_folder.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
   <% end %>
 
   <!-- フォルダ一覧 -->

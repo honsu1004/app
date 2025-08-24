@@ -4,7 +4,7 @@ class MemoryFoldersController < ApplicationController
   before_action :authorize_member!, only: [ :index, :create, :update, :destroy ]
 
   def index
-    @plan = Plan.find(params[:plan_id])
+    @plan = current_user.plans.find(params[:plan_id])
     @memory_folder = @plan.memory_folders.build
     @memory_folders = @plan.memory_folders
   end
@@ -16,8 +16,15 @@ class MemoryFoldersController < ApplicationController
   end
 
   def create
-    @memory_folder = @plan.memory_folders.new(memory_folder_params)
-    @memory_folder.user = current_user
+    @plan = current_user.plans.find(params[:plan_id])
+    @memory_folder = @plan.memory_folders.build(memory_folder_params)
+
+    Rails.logger.debug "=== Memory Folder Debug ==="
+    Rails.logger.debug "Plan: #{@plan.inspect}"
+    Rails.logger.debug "Memory Folder: #{@memory_folder.inspect}"
+    Rails.logger.debug "Params: #{memory_folder_params.inspect}"
+    Rails.logger.debug "Valid?: #{@memory_folder.valid?}"
+    Rails.logger.debug "Errors: #{@memory_folder.errors.full_messages}"
 
     if @memory_folder.save
       redirect_to plan_memory_folder_path(@plan, @memory_folder), notice: "フォルダを作成しました"
