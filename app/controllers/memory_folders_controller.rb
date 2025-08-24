@@ -10,7 +10,7 @@ class MemoryFoldersController < ApplicationController
   end
 
   def show
-    @memory_folder = current_user.memory_folders.find(params[:id])
+    @memory_folder = @plan.memory_folders.find(params[:id])
     @memory = @memory_folder.memories.new
     @memories = @memory_folder.memories.with_attached_media
   end
