@@ -15,12 +15,9 @@ class MemoriesController < ApplicationController
     @memory = @memory_folder.memories.new(memory_params.except(:media))
     @memory.user = current_user
 
-    # 複数画像の処理
+    # 複数画像の処理(バリデーション強化)
     if params[:memory][:media].present?
-      # 空の値、nil、空文字列を確実に除外
-      valid_files = params[:memory][:media].compact.reject { |file| 
-        file.blank? || !file.respond_to?(:tempfile) 
-      }
+      valid_files = validate_and_filter_files(params[:memory][:media])
     
       Rails.logger.debug "Valid files count: #{valid_files.length}"
       Rails.logger.debug "Valid files: #{valid_files.map(&:original_filename)}"
@@ -37,6 +34,7 @@ class MemoriesController < ApplicationController
                   notice: "思い出を追加しました（#{@memory.media.count}枚の画像）"
     else
       Rails.logger.debug "Memory save failed: #{@memory.errors.full_messages}"
+      error_messages = @memory.errors.full_messages.join(',')
       @memories = @memory_folder.memories.with_attached_media
       render "memory_folders/show", status: :unprocessable_entity
     end
@@ -53,6 +51,7 @@ class MemoriesController < ApplicationController
    # 削除前にメディアファイルの存在確認
     if @memory.media.attached?
       @memory.media.purge
+      Rails.logger.info "Media files purged for memory ID: #{@memory.id}"
     end
 
     # メモリレコードの削除
@@ -66,14 +65,39 @@ class MemoriesController < ApplicationController
     end
   end
 
-  def authorize_member!
-    @plan = Plan.find(params[:plan_id])
-    unless @plan.members.include?(current_user) || @plan.user == current_user
-      redirect_to plans_path, alert: "このプランを編集する権限がありません"
-    end
-  end
-
   private
+
+  def validate_and_filter_files(uploaded_files)
+    max_size = 2.megabytes
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+    valid_files = []
+  
+    uploaded_files.compact.each do |file|
+      next if file.blank? || !file.respond_to?(:tempfile)
+    
+      # 空ファイルチェック
+      if file.size == 0
+        flash.now[:alert] = "#{file.original_filename} は空のファイルです"
+        next
+      end
+    
+      # ファイルサイズチェック
+      if file.size > max_size
+        flash.now[:alert] = "#{file.original_filename} のサイズが大きすぎます（最大2MBまで）"
+        next
+      end
+    
+      # ファイル形式チェック
+      unless allowed_types.include?(file.content_type)
+        flash.now[:alert] = "#{file.original_filename} は対応していない形式です（JPEG、PNG、GIFのみ）"
+        next
+      end
+    
+      valid_files << file
+    end
+  
+    valid_files
+  end
 
   def set_memory_folder
     @memory_folder = MemoryFolder.find(params[:memory_folder_id])
@@ -85,5 +109,12 @@ class MemoriesController < ApplicationController
 
   def memory_params
     params.require(:memory).permit(:url, media: [])
+  end
+
+  def authorize_member!
+    @plan = Plan.find(params[:plan_id])
+    unless @plan.members.include?(current_user) || @plan.user == current_user
+      redirect_to plans_path, alert: "このプランを編集する権限がありません"
+    end
   end
 end
