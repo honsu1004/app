@@ -56,7 +56,7 @@ class ScheduleItemsController < ApplicationController
   end
 
   def schedule_item_params
-    params.require(:schedule_item).permit(:day_number, :start_time, :end_time, :address)
+    params.require(:schedule_item).permit(:day_number, :start_time, :end_time, :memo)
   end
 
   def authorize_member!

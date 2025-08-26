@@ -1,12 +1,12 @@
-<!-- 場所 -->
+<!-- メモ欄 -->
 <div>
-  <%= f.label :address, "場所（施設名や住所）", class: "block text-gray-700 font-medium mb-1" %>
-  <%= f.text_field :address, class: "w-full border-gray-300 rounded-lg shadow-sm", id: "address-field" %>
+  <%= f.label :memo, "メモ", class: "block text-gray-700 font-medium mb-1" %>
+  <%= f.text_field :memo, class: "w-full border-gray-300 rounded-lg shadow-sm", rows: 4 %>
 </div>
 
 <!-- 隠しフィールド（緯度・経度） -->
-<%= f.hidden_field :latitude, id: "latitude-field" %>
-<%= f.hidden_field :longitude, id: "longitude-field" %>
+<!-- <%= f.hidden_field :latitude, id: "latitude-field" %>
+<!-- <%= f.hidden_field :longitude, id: "longitude-field" %>
 
 <!-- マップ -->
-<div id="map" class="w-full h-64 rounded-lg shadow border"></div>
+<!--<div id="map" class="w-full h-64 rounded-lg shadow border"></div> -->
