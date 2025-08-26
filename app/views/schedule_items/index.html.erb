@@ -12,8 +12,8 @@
           <div class="bg-white rounded-xl shadow p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
               <p class="text-gray-800 font-semibold">📍 <%= item.address %></p>
-              <% if item.respond_to?(:start_time) && item.start_time.present? %>
-                <p class="text-sm text-gray-600 mt-1">🕒 <%= item.start_time.strftime("%H:%M") %> 〜 <%= item.end_time.strftime("%H:%M") %></p>
+              <% if item.formatted_time_range.present? %>
+                <p class="text-sm text-gray-600 mt-1"><%= item.formatted_time_range %></p>                  
               <% end %>
             </div>
             <%= link_to "編集", edit_plan_schedule_item_path(@plan, item), class: "text-sm text-blue-500 hover:underline mt-2 sm:mt-0" %>

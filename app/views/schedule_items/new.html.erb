@@ -29,8 +29,9 @@
 
         <!-- 終了時間 -->
         <div>
-          <%= f.label :end_time, "終了時間", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.label :end_time, "終了時間(任意)", class: "block text-gray-700 font-medium mb-1" %>
           <%= f.time_field :end_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+          <small class="form-text text-muted">終了時間は入力しなくても保存できます</small>
         </div>
 
         <!-- 場所 -->
