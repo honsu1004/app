@@ -11,7 +11,7 @@
         <% items.each do |item| %>
           <div class="bg-white rounded-xl shadow p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
-              <p class="text-gray-800 font-semibold">📍 <%= item.memo %></p>
+              <p class="text-gray-800 font-semibold">📍 <%= item.location_name %></p>
               <% if item.formatted_time_range.present? %>
                 <p class="text-sm text-gray-600 mt-1"><%= item.formatted_time_range %></p>                  
               <% end %>

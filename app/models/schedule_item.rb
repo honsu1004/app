@@ -6,6 +6,7 @@ class ScheduleItem < ApplicationRecord
   # after_validation :geocode, if: :will_save_change_to_address?
 
   validates :start_time, presence: true
+  validates :location_name, length: { maximum: 100 }
 
   def formatted_time_range
     return "" unless start_time.present?

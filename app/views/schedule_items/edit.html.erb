@@ -18,25 +18,31 @@
         <!-- 日数 -->
         <div>
           <%= f.label :day_number, "何日目", class: "block text-gray-700 font-medium mb-1" %>
-          <%= f.number_field :day_number, min: 1, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+          <%= f.number_field :day_number, min: 1, class: "w-full border-gray-300 rounded-lg shadow-sm py-1 px-2" %>
         </div>
 
         <!-- 開始時間 -->
         <div>
           <%= f.label :start_time, "開始時間", class: "block text-gray-700 font-medium mb-1" %>
-          <%= f.time_field :start_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+          <%= f.time_field :start_time, class: "w-full border-gray-300 rounded-lg shadow-sm py-1 px-2" %>
         </div>
 
         <!-- 終了時間 -->
         <div>
           <%= f.label :end_time, "終了時間", class: "block text-gray-700 font-medium mb-1" %>
-          <%= f.time_field :end_time, class: "w-full border-gray-300 rounded-lg shadow-sm" %>
+          <%= f.time_field :end_time, class: "w-full border-gray-300 rounded-lg shadow-sm py-1 px-2" %>
+        </div>
+
+        <!-- タイトル -->
+        <div>
+          <%= f.label :location_name, "タイトル", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.text_area :location_name, class: "w-full border-gray-200 rounded-lg shadow-sm leading-relaxed py-1 px-2", rows: 1 %>
         </div>
 
         <!-- メモ欄 -->
         <div>
           <%= f.label :memo, "メモ", class: "block text-gray-700 font-medium mb-1" %>
-          <%= f.text_area :memo, class: "w-full border-gray-300 rounded-lg shadow-sm", rows: 4 %>
+          <%= f.text_area :memo, class: "w-full border-gray-300 rounded-lg shadow-sm py-1 px-2", rows: 4 %>
         </div>
 
         <!-- マップ -->
