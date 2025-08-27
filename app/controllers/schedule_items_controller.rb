@@ -3,7 +3,7 @@ class ScheduleItemsController < ApplicationController
   before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
-    @schedule_items = @plan.schedule_items.order(:day_number, :start_time)
+    @schedule_items = @plan.schedule_items.order(:day_number, Arel.sql('start_time IS NULL, start_time ASC'))
   end
 
   def new
