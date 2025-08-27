@@ -3,19 +3,25 @@ class ScheduleItemsController < ApplicationController
   before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
-    # データを取得
-    items = @plan.schedule_items.includes(:plan, :user).to_a
+    @schedule_items = @plan.schedule_items.ordered
+  end
 
-    # 日付別にグループ化して、各日の中で時間順に並び替え
-    @schedule_items = items.group_by(&:day_number).flat_map do |day, day_items|
-      day_items.sort_by do |item|
-        if item.start_time.present?
-          item.start_time.strftime("%H%M").to_i
-        else
-          9999  # 時間未設定は最後
-        end
+  def update_positions
+    ActiveRecord::Base.transaction do
+      params[:positions].each do |item_data|
+        item = @plan.schedule_items.find(item_data[:id])
+        item.update!(
+          position: item_data[:position],
+          day_number: item_data[:day_number]
+        )
       end
-    end.sort_by { |item| item.day_number.to_i }
+    end
+  
+    render json: { status: 'success', message: '順序を更新しました' }
+  rescue ActiveRecord::RecordNotFound => e
+    render json: { status: 'error', message: 'スケジュールアイテムが見つかりません' }, status: :not_found
+  rescue => e
+    render json: { status: 'error', message: '更新に失敗しました' }, status: :unprocessable_entity
   end
 
   def new
@@ -68,7 +74,7 @@ class ScheduleItemsController < ApplicationController
   end
 
   def schedule_item_params
-    params.require(:schedule_item).permit(:day_number, :start_time, :end_time, :memo, :location_name, :url)
+    params.require(:schedule_item).permit(:day_number, :start_time, :end_time, :memo, :location_name, :url, :position)
   end
 
   def authorize_member!

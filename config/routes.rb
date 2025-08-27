@@ -16,7 +16,11 @@ Rails.application.routes.draw do
     end
     resources :notes
     resources :chat_messages, only: [:index, :create, :destroy]
-    resources :schedule_items
+    resources :schedule_items do
+      collection do
+        patch :update_positions
+      end
+    end
   end
 
   resources :plan_invitations, param: :token, only: [] do

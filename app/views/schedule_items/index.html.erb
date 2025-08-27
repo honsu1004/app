@@ -4,60 +4,257 @@
   <% grouped_items = @schedule_items.group_by(&:day_number).sort_by { |day, _| day.to_i }.to_h %>
 
   <% grouped_items.each do |day, items| %>
-    <div class="mb-8">
+    <div class="mb-8 day-container" data-day-number="<%= day %>">
       <h2 class="text-xl font-semibold text-blue-600 mb-4">📅 <%= day %>日目</h2>
 
-      <div class="space-y-4">
-        <% items.sort_by { |item| item.start_time || Time.parse("23:59") }.each do |item| %>
-          <div class="bg-white rounded-xl shadow p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-            <div>
-              <!-- 場所名（URLがある場合はクリック可能、URLは表示しない） -->
-              <% if item.url.present? %>
-                <p class="text-gray-800 font-semibold">
-                  📍 <%= link_to item.location_name, item.url, 
-                          target: "_blank", 
-                          rel: "noopener noreferrer", 
-                          class: "text-blue-600 hover:text-blue-800 hover:underline" %>
-                </p>
-              <% else %>
-                <p class="text-gray-800 font-semibold">📍 <%= item.location_name %></p>
-              <% end %>
+      <!-- ドラッグ&ドロップ対応のコンテナ -->
+      <div class="space-y-4 sortable-container" id="sortable-day-<%= day %>">
+        <!-- アイテムがある場合の表示 -->
+        <% if items.present? %>
+          <% items.sort_by(&:position).each do |item| %>
+            <div class="bg-white rounded-xl shadow p-4 schedule-item cursor-move" 
+                 data-item-id="<%= item.id %>" 
+                 data-position="<%= item.position %>">
+
+              <!-- 全体をflexコンテナにして、左右に明確に分ける -->
+              <div class="flex items-start justify-between w-full">
               
-              <!-- 時間表示 -->
-              <% if item.start_time.present? %>
-                <p class="text-sm text-gray-600 mt-1">
-                  🕒 <%= item.start_time.strftime("%H:%M") %>
-                  <% if item.end_time.present? %>
-                    〜<%= item.end_time.strftime("%H:%M") %>
-                  <% end %>
-                </p>
-              <% else %>
-                <p class="text-sm text-gray-600 mt-1">🕒 時間未設定</p>
-              <% end %>
+                <!-- 左側：ドラッグハンドル + コンテンツ -->
+                <div class="flex items-start flex-1 min-w-0">
+                  <!-- ドラッグハンドル -->
+                  <div class="drag-handle mr-3 mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing flex-shrink-0"
+                    style="touch-action: none;">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <circle cx="3" cy="3" r="1"/>
+                      <circle cx="3" cy="8" r="1"/>
+                      <circle cx="3" cy="13" r="1"/>
+                      <circle cx="8" cy="3" r="1"/>
+                      <circle cx="8" cy="8" r="1"/>
+                      <circle cx="8" cy="13" r="1"/>
+                    </svg>
+                  </div>  
+                
+                  <!-- メインコンテンツ -->
+                  <div class="flex-1 min-w-0">
+                    <!-- 場所名（URLがある場合はクリック可能） -->
+                    <% if item.url.present? %>
+                      <p class="text-gray-800 font-semibold">
+                        📍 <%= link_to item.location_name, item.url, 
+                                target: "_blank", 
+                                rel: "noopener noreferrer", 
+                                class: "text-blue-600 hover:text-blue-800 hover:underline" %>
+                      </p>
+                    <% else %>
+                      <p class="text-gray-800 font-semibold">📍 <%= item.location_name %></p>
+                    <% end %>
+          
+                    <!-- 時間表示 -->
+                    <% if item.start_time.present? %>
+                      <p class="text-sm text-gray-600 mt-1">
+                        🕒 <%= item.start_time.strftime("%H:%M") %>
+                        <% if item.end_time.present? %>
+                            〜<%= item.end_time.strftime("%H:%M") %>
+                        <% end %>
+                      </p>
+                    <% else %>
+                      <p class="text-sm text-gray-600 mt-1">🕒 時間未設定</p>
+                    <% end %>
+          
+                    <!-- メモがある場合は表示 -->
+                    <% if item.memo.present? %>
+                      <p class="text-xs text-gray-500 mt-1 truncate">📝 <%= item.memo %></p>
+                    <% end %>
+                  </div>
+                </div>
+      
+                <!-- 右側：編集ボタン（ボックスの右端に固定） -->
+                <div class="flex items-center ml-6 flex-shrink-0">
+                  <%= link_to "編集", edit_plan_schedule_item_path(@plan, item), 
+                      class: "inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-all duration-200" %>
+                </div>
+      
+              </div>
             </div>
-            
-            <!-- 編集ボタン -->
-            <%= link_to "編集", edit_plan_schedule_item_path(@plan, item), 
-                class: "text-sm text-blue-500 hover:underline mt-2 sm:mt-0" %>
+          <% end %> <!-- items.each のend -->
+        
+        <!-- 空の状態表示 -->
+        <% else %>
+          <div class="bg-gray-50 rounded-xl p-8 text-center border-2 border-dashed border-gray-300">
+            <p class="text-gray-500">この日のスケジュールはまだありません</p>
+            <%= link_to "最初のスケジュールを追加", 
+                new_plan_schedule_item_path(@plan, day_number: day),
+                class: "text-blue-500 hover:underline text-sm mt-2 inline-block" %>
           </div>
-        <% end %>
+        <% end %> <!-- if items.present? のend -->
       </div>
     </div>
-  <% end %>
+  <% end %> <!-- grouped_items.each のend -->
+</div>
 
-  <% if grouped_items.empty? %>
-    <p class="text-gray-600">スケジュールがまだ登録されていません。</p>
-  <% end %>
 
   <!-- 右下の「＋スケジュール追加」ボタン -->
   <div class="fixed bottom-6 right-6">
     <%= link_to new_plan_schedule_item_path(@plan),
-                class: "bg-blue-500 hover:bg-blue-600 text-white text-lg font-bold py-3 px-5 rounded-full shadow-lg" do %>
-      ＋ スケジュール追加
+                class: "bg-blue-500 hover:bg-blue-600 text-white text-lg font-bold py-3 px-5 rounded-full shadow-lg transition-all duration-200 hover:shadow-xl" do %>
+      <span class="text-xl">＋</span> スケジュール追加
     <% end %>
   </div>
   
-  <div class="mt-6 text-center">
-    <%= link_to "← プランに戻る", plan_path(@plan), class: "text-blue-500 hover:underline" %>
+  <!-- 戻るボタン（アイコンなし） -->
+  <div class="mt-8 text-center pb-20">
+    <%= link_to "プランに戻る", plan_path(@plan), 
+        class: "inline-flex items-center px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors" %>
   </div>
 </div>
+
+<style>
+  .sortable-ghost {
+    opacity: 0.4;
+    background: #f3f4f6;
+    transform: scale(0.98);
+  }
+  
+  .sortable-chosen {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+    z-index: 1000;
+  }
+  
+  .sortable-drag {
+    opacity: 0.8;
+    transform: rotate(2deg);
+  }
+  
+  .drag-handle:hover {
+    background-color: #f9fafb;
+    border-radius: 4px;
+  }
+  
+  .schedule-item {
+    transition: all 0.2s ease;
+  }
+  
+  .schedule-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  /* ドロップゾーンのスタイル */
+  .sortable-container {
+    min-height: 60px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .sortable-container.drag-over {
+    background-color: #eff6ff;
+    border: 2px dashed #3b82f6;
+  }
+</style>
+
+<!-- SortableJS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const planId = <%= @plan.id %>;
+  
+  // 各日のコンテナにSortableを適用
+  document.querySelectorAll('.sortable-container').forEach(container => {
+    new Sortable(container, {
+      group: 'schedule-items', // 異なる日間での移動を可能にする
+      animation: 200,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      handle: '.drag-handle', // ドラッグハンドルを指定
+      
+      // ドラッグ開始時
+      onStart: function(evt) {
+        document.body.classList.add('dragging');
+        evt.item.classList.add('dragging-item');
+      },
+      
+      // ドラッグ終了時
+      onEnd: function(evt) {
+        document.body.classList.remove('dragging');
+        evt.item.classList.remove('dragging-item');
+        
+        // 位置が変更された場合のみ更新
+        if (evt.oldIndex !== evt.newIndex || evt.from !== evt.to) {
+          updatePositions();
+        }
+      },
+      
+      // ドロップゾーンに入った時
+      onMove: function(evt) {
+        const related = evt.related;
+        const dragged = evt.dragged;
+        
+        // 特定の条件でドロップを禁止する場合
+        // return false;
+      }
+    });
+  });
+  
+  // 位置更新関数
+  function updatePositions() {
+    const positions = [];
+    
+    document.querySelectorAll('.day-container').forEach(dayContainer => {
+      const dayNumber = dayContainer.dataset.dayNumber;
+      const items = dayContainer.querySelectorAll('.schedule-item');
+      
+      items.forEach((item, index) => {
+        positions.push({
+          id: parseInt(item.dataset.itemId),
+          position: index + 1,
+          day_number: parseInt(dayNumber)
+        });
+      });
+    });
+    
+    // サーバーに送信
+    fetch(`/plans/${planId}/schedule_items/update_positions`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ positions: positions })
+    })
+    .then(response => {
+      if (response.ok) {
+        // 成功時の処理（オプション）
+        showNotification('スケジュールの順序を更新しました', 'success');
+      } else {
+        throw new Error('更新に失敗しました');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('更新に失敗しました', 'error');
+      // エラー時はページをリロード
+      setTimeout(() => location.reload(), 1000);
+    });
+  }
+  
+  // 通知表示関数（オプション）
+  function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${
+      type === 'success' ? 'bg-green-500' : 
+      type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // 3秒後に削除
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+});
+</script>
