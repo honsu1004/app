@@ -8,15 +8,37 @@
       <h2 class="text-xl font-semibold text-blue-600 mb-4">📅 <%= day %>日目</h2>
 
       <div class="space-y-4">
-        <% items.each do |item| %>
+        <% items.sort_by { |item| item.start_time || Time.parse("23:59") }.each do |item| %>
           <div class="bg-white rounded-xl shadow p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
-              <p class="text-gray-800 font-semibold">📍 <%= item.location_name %></p>
-              <% if item.formatted_time_range.present? %>
-                <p class="text-sm text-gray-600 mt-1"><%= item.formatted_time_range %></p>                  
+              <!-- 場所名（URLがある場合はクリック可能、URLは表示しない） -->
+              <% if item.url.present? %>
+                <p class="text-gray-800 font-semibold">
+                  📍 <%= link_to item.location_name, item.url, 
+                          target: "_blank", 
+                          rel: "noopener noreferrer", 
+                          class: "text-blue-600 hover:text-blue-800 hover:underline" %>
+                </p>
+              <% else %>
+                <p class="text-gray-800 font-semibold">📍 <%= item.location_name %></p>
+              <% end %>
+              
+              <!-- 時間表示 -->
+              <% if item.start_time.present? %>
+                <p class="text-sm text-gray-600 mt-1">
+                  🕒 <%= item.start_time.strftime("%H:%M") %>
+                  <% if item.end_time.present? %>
+                    〜<%= item.end_time.strftime("%H:%M") %>
+                  <% end %>
+                </p>
+              <% else %>
+                <p class="text-sm text-gray-600 mt-1">🕒 時間未設定</p>
               <% end %>
             </div>
-            <%= link_to "編集", edit_plan_schedule_item_path(@plan, item), class: "text-sm text-blue-500 hover:underline mt-2 sm:mt-0" %>
+            
+            <!-- 編集ボタン -->
+            <%= link_to "編集", edit_plan_schedule_item_path(@plan, item), 
+                class: "text-sm text-blue-500 hover:underline mt-2 sm:mt-0" %>
           </div>
         <% end %>
       </div>
@@ -34,6 +56,7 @@
       ＋ スケジュール追加
     <% end %>
   </div>
+  
   <div class="mt-6 text-center">
     <%= link_to "← プランに戻る", plan_path(@plan), class: "text-blue-500 hover:underline" %>
   </div>

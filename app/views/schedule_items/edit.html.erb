@@ -39,6 +39,12 @@
           <%= f.text_area :location_name, class: "w-full border-gray-200 rounded-lg shadow-sm leading-relaxed py-1 px-2", rows: 1 %>
         </div>
 
+         <!-- URL -->
+        <div>
+          <%= f.label :url, "URL(Googleマップなど)", class: "block text-gray-700 font-medium mb-1" %>
+          <%= f.url_field :url, class: "w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
         <!-- メモ欄 -->
         <div>
           <%= f.label :memo, "メモ", class: "block text-gray-700 font-medium mb-1" %>

@@ -7,6 +7,7 @@ class ScheduleItem < ApplicationRecord
 
   validates :start_time, presence: true
   validates :location_name, length: { maximum: 100 }
+  validates :url, format: { with: URI::DEFAULT_PARSER.make_regexp }, allow_blank: true
 
   def formatted_time_range
     return "" unless start_time.present?
