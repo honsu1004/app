@@ -3,7 +3,16 @@ class ScheduleItemsController < ApplicationController
   before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
-    @schedule_items = @plan.schedule_items.ordered_by_day_and_time_only
+    @plan = current_user.plans.find(params[:plan_id])
+    schedule_items = @plan.schedule_items.includes(:plan)
+    
+    # Ruby側で日付とstart_timeの時刻部分で並び替え
+    @schedule_items = schedule_items.sort_by do |item|
+      [
+        item.day_number,
+        item.start_time ? [item.start_time.hour, item.start_time.min] : [23, 59]
+      ]
+    end
   end
 
   def new
