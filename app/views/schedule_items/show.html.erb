@@ -1,22 +1,105 @@
-<h1><%= @schedule_item.address %> のマップ</h1>
+<div class="min-h-screen bg-gray-100 px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-6">
+      <%= link_to plan_schedule_items_path(@plan), 
+          class: "inline-flex items-center text-blue-600 hover:text-blue-800 mb-4" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        スケジュール一覧に戻る
+      <% end %>
 
-<div id="map" style="height: 400px;"></div>
+      <h1 class="text-3xl font-bold text-gray-800">
+        <%= @plan.title %> - <%= @schedule_item.day_number %>日目詳細
+      </h1>
+    </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const lat = <%= @schedule_item.latitude %>;
-    const lng = <%= @schedule_item.longitude %>;
+    <!-- 詳細カード -->
+    <div class="bg-white rounded-xl shadow-lg p-8">
+      <div class="space-y-6">
+        <!-- 場所名 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">場所</label>
+          <div class="flex items-center">
+            <p class="text-lg text-gray-900">📍 <%= @schedule_item.location_name %></p>
+            <% if @schedule_item.url.present? %>
+              <%= link_to @schedule_item.url, 
+                  target: "_blank", 
+                  rel: "noopener noreferrer",
+                  class: "ml-4 inline-flex items-center px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100" do %>
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                URLを開く
+              <% end %>
+            <% end %>
+          </div>
+        </div>
 
-    const map = L.map('map').setView([lat, lng], 15); // 15はズームレベル
+        <!-- 時間 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">時間</label>
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <% if @schedule_item.start_time.present? %>
+              <p class="text-lg text-gray-900">
+                <%= @schedule_item.start_time.strftime("%H:%M") %>
+                <% if @schedule_item.end_time.present? %>
+                  〜 <%= @schedule_item.end_time.strftime("%H:%M") %>
+                <% end %>
+              </p>
+            <% else %>
+              <p class="text-lg text-gray-500">時間未設定</p>
+            <% end %>
+          </div>
+        </div>
 
-    // OpenStreetMap レイヤーを追加
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+        <!-- メモ -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">メモ</label>
+          <% if @schedule_item.memo.present? %>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-gray-900 whitespace-pre-wrap"><%= @schedule_item.memo %></p>
+            </div>
+          <% else %>
+            <p class="text-gray-500 italic">メモなし</p>
+          <% end %>
+        </div>
 
-    // ピンを追加
-    L.marker([lat, lng]).addTo(map)
-      .bindPopup("<%= @schedule_item.address %>")
-      .openPopup();
-  });
-</script>
+        <!-- 日程 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">日程</label>
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-lg text-gray-900"><%= @schedule_item.day_number %>日目</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <%= link_to "編集", edit_plan_schedule_item_path(@plan, @schedule_item), 
+              class: "inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200" %>
+          
+          <%= link_to "削除", plan_schedule_item_path(@plan, @schedule_item), 
+              method: :delete,
+              data: { 
+                confirm: "本当に削除しますか？",
+                turbo_method: :delete 
+              },
+              class: "inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200" %>
+          
+          <%= link_to "新しいスケジュール追加", 
+              new_plan_schedule_item_path(@plan, day_number: @schedule_item.day_number),
+              class: "inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

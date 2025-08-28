@@ -64,7 +64,7 @@ class ScheduleItemsController < ApplicationController
   end
 
   def show
-    @schedule_item = @plan.schedule_items.find(params[:id])
+    @schedule_item = ScheduleItem.find(params[:id])
   end
 
   private
