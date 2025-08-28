@@ -3,25 +3,7 @@ class ScheduleItemsController < ApplicationController
   before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
-    @schedule_items = @plan.schedule_items.ordered
-  end
-
-  def update_positions
-    ActiveRecord::Base.transaction do
-      params[:positions].each do |item_data|
-        item = @plan.schedule_items.find(item_data[:id])
-        item.update!(
-          position: item_data[:position],
-          day_number: item_data[:day_number]
-        )
-      end
-    end
-  
-    render json: { status: 'success', message: '順序を更新しました' }
-  rescue ActiveRecord::RecordNotFound => e
-    render json: { status: 'error', message: 'スケジュールアイテムが見つかりません' }, status: :not_found
-  rescue => e
-    render json: { status: 'error', message: '更新に失敗しました' }, status: :unprocessable_entity
+    @schedule_items = @plan.schedule_items
   end
 
   def new
