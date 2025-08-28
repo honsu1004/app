@@ -1,16 +1,16 @@
 <div class="min-h-screen bg-gray-100 relative px-4 py-8">
   <h1 class="text-3xl font-bold text-gray-800 mb-8"><%= @plan.title %> のスケジュール</h1>
 
-  <% grouped_items = @schedule_items.group_by(&:day_number).sort_by { |day, _| day.to_i }.to_h %>
+  <% grouped_items = @schedule_items.group_by(&:day_number) %>
 
-  <% grouped_items.each do |day, items| %>
+  <% grouped_items.sort_by { |day, _| day.to_i }.each do |day, items| %>
     <div class="mb-8 day-container" data-day-number="<%= day %>">
       <h2 class="text-xl font-semibold text-blue-600 mb-4">📅 <%= day %>日目</h2>
 
       <div class="space-y-4">
         <% if items.present? %>
-          <% sorted_items = sort_items_by_time(items) %>
-          <% sorted_items.each_with_index do |item, index| %>
+          <!-- ここを修正：sort_items_by_time(items) を items に変更 -->
+          <% items.each_with_index do |item, index| %>
             <div class="bg-white rounded-xl shadow p-4 schedule-item cursor-pointer hover:shadow-lg transition-shadow duration-200" 
                  data-item-id="<%= item.id %>" 
                  data-position="<%= index + 1 %>"

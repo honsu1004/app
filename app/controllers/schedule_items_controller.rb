@@ -4,9 +4,9 @@ class ScheduleItemsController < ApplicationController
 
   def index
     @plan = current_user.plans.find(params[:plan_id])
-    schedule_items = @plan.schedule_items.includes(:plan)
     
-    # Ruby側で日付とstart_timeの時刻部分で並び替え
+    # Ruby側で並び替えを実装
+    schedule_items = @plan.schedule_items
     @schedule_items = schedule_items.sort_by do |item|
       [
         item.day_number,
