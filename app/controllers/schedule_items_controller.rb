@@ -3,7 +3,7 @@ class ScheduleItemsController < ApplicationController
   before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
-    @schedule_items = @plan.schedule_items
+    @schedule_items = @plan.schedule_items.ordered_by_day_and_time_only
   end
 
   def new
