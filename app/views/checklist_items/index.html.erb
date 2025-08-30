@@ -26,48 +26,64 @@
     </div>
 
     <% if @item_type == 'shared' %>
-      <!-- 共有タブ：ユーザーごとにグループ化して表示 -->
+      <!-- 共有タブ：プランメンバーごとにグループ化して表示 -->
       <% if @checklist_items.any? %>
-        <% @checklist_items.group_by(&:user).each do |user, items| %>
+        <% unique_users = @plan.plan_members.includes(:user).map(&:user).uniq %>
+        <% unique_users.each do |user| %>
+          <% next unless user.present? %>
+          
           <div class="bg-white rounded-xl shadow p-6 mb-6">
             <!-- ユーザー名のヘッダー -->
             <div class="flex items-center mb-4 pb-3 border-b border-gray-200">
               <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                <%= user.name.first %>
+                <%= user.name&.first || "?" %>
               </div>
               <h2 class="text-xl font-bold text-gray-800">
-                <%= user.name %>のチェックリスト
+                <%= user.name || "不明なユーザー" %>のチェックリスト
                 <% if user == current_user %>
                   <span class="text-sm font-normal text-blue-600">（あなた）</span>
                 <% end %>
               </h2>
               <span class="ml-auto text-sm text-gray-500">
-                <%= items.count %>個のアイテム
+                <%= @checklist_items.count %>個のアイテム
               </span>
             </div>
 
             <!-- そのユーザーのアイテム一覧 -->
             <div class="space-y-3">
-              <% items.each do |item| %>
+              <% @checklist_items.each do |item| %>
+                <% # UserChecklistItemでチェック状態を確認 %>
+                <% user_checklist_item = UserChecklistItem.find_by(user: user, checklist_item: item) %>
+                <% is_checked = user_checklist_item&.is_checked || false %>
+                
                 <div class="flex items-center justify-between py-2">
                   <div class="flex items-center space-x-3">
                     <!-- チェックボックス -->
                     <%= form_with model: [@plan, item], method: :patch, local: true, class: "inline" do |f| %>
-                      <%= check_box_tag "checked", "1", item.checked_by?(current_user), {
+                      <%= check_box_tag "checked", "1", is_checked, {
                             class: "h-5 w-5 text-blue-600 rounded focus:ring-blue-500",
-                            onchange: "this.form.submit()"
+                            onchange: "this.form.submit()",
+                            disabled: user != current_user # 自分以外のチェックボックスは無効化
                           } %>
                       <%= hidden_field_tag :item_type, @item_type %>
+                      <%= hidden_field_tag :target_user_id, user.id %>
                     <% end %>
                     
                     <!-- アイテム名 -->
-                    <span class="<%= item.checked_by?(current_user) ? 'line-through text-gray-500' : 'text-gray-800' %> text-lg">
-                      <%= item.name %>
+                    <span class="<%= is_checked ? 'line-through text-gray-500' : 'text-gray-800' %> text-lg">
+                      <%= item.name.presence || "（無題）" %>
                     </span>
+                    
+                    <!-- 自分以外の場合は状態表示 -->
+                    <% if user != current_user %>
+                      <span class="text-xs <%= is_checked ? 'text-green-600' : 'text-gray-400' %> ml-2">
+                        <%= is_checked ? '✓ 完了' : '未完了' %>
+                      </span>
+                    <% end %>
                   </div>
                   
-                  <!-- 削除ボタン（作成者のみ表示） -->
-                  <% if item.user == current_user %>
+                  <!-- 削除ボタン（プラン作成者のみ表示） -->
+                  <% if @plan.user == current_user %>
                     <%= link_to plan_checklist_item_path(@plan, item, item_type: @item_type), 
                         method: :delete, 
                         data: { confirm: '本当に削除しますか？' }, 
@@ -117,19 +133,19 @@
     <% else %>
       <!-- 個人タブ：従来通りの表示 -->
       <div class="bg-white rounded-xl shadow p-6 space-y-4">
-        <!-- 個人タブの説明 -->
-        <div class="text-center text-gray-600 mb-4">
-          <p>🎒 あなた専用の持ち物リスト</p>
-        </div>
 
         <!-- 個人チェックリストアイテム一覧 -->
         <% if @checklist_items.any? %>
           <% @checklist_items.each do |item| %>
+            <% # UserChecklistItemでチェック状態を確認 %>
+            <% user_checklist_item = UserChecklistItem.find_by(user: current_user, checklist_item: item) %>
+            <% is_checked = user_checklist_item&.is_checked || false %>
+            
             <div class="flex items-center justify-between py-2">
               <div class="flex items-center space-x-3">
                 <!-- チェックボックス -->
                 <%= form_with model: [@plan, item], method: :patch, local: true, class: "inline" do |f| %>
-                  <%= check_box_tag "checked", "1", item.checked_by?(current_user), {
+                  <%= check_box_tag "checked", "1", is_checked, {
                         class: "h-5 w-5 text-blue-600 rounded focus:ring-blue-500",
                         onchange: "this.form.submit()"
                       } %>
@@ -137,7 +153,7 @@
                 <% end %>
                 
                 <!-- アイテム名 -->
-                <span class="<%= item.checked_by?(current_user) ? 'line-through text-gray-500' : 'text-gray-800' %> text-lg">
+                <span class="<%= is_checked ? 'line-through text-gray-500' : 'text-gray-800' %> text-lg">
                   <%= item.name.presence || "（無題）" %>
                 </span>
               </div>
