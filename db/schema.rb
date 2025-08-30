@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_131545) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_150450) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -55,6 +55,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_131545) do
     t.datetime "updated_at", null: false
     t.string "name"
     t.integer "item_type", default: 0
+    t.bigint "assignee_id"
+    t.boolean "is_shared", default: true, null: false
+    t.index ["assignee_id"], name: "index_checklist_items_on_assignee_id"
   end
 
   create_table "memories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -161,6 +164,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_131545) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "chat_messages", "plans"
   add_foreign_key "chat_messages", "users"
+  add_foreign_key "checklist_items", "users", column: "assignee_id"
   add_foreign_key "memories", "memory_folders"
   add_foreign_key "memories", "users"
   add_foreign_key "memory_folders", "plans"

@@ -20,6 +20,11 @@ class Plan < ApplicationRecord
 
   after_create :add_owner_as_member
 
+  # participantsメソッドを定義（プラン作成者 + メンバー）
+  def participants
+    User.where(id: [user_id] + member_ids).distinct
+  end
+
   private
 
   def end_date_after_start_date
@@ -30,5 +35,5 @@ class Plan < ApplicationRecord
 
   def add_owner_as_member
     plan_members.create!(user: user)
-  end
+  end  
 end

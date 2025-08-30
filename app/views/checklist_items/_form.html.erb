@@ -1,0 +1,29 @@
+<%= form_with model: [@plan, checklist_item], local: false do |form| %>
+  <% if checklist_item.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(checklist_item.errors.count, "error") %> prohibited this checklist item from being saved:</h2>
+      <ul>
+        <% checklist_item.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <!-- ★ここを content から name に変更！ -->
+    <%= form.text_field :name, placeholder: "チェックリストアイテムを入力" %>
+  </div>
+
+  <div class="field">
+    <%= form.select :assignee_id, 
+        options_from_collection_for_select(@plan.participants, :id, :name, checklist_item.assignee_id), 
+        { prompt: "担当者を選択" } %>
+  </div>
+
+  <%= form.hidden_field :is_shared, value: params[:item_type] == 'personal' ? false : true %>
+
+  <div class="actions">
+    <%= form.submit "追加" %>
+  </div>
+<% end %>

@@ -1,14 +1,19 @@
+<% content_for(:title, "#{@plan.title} の持ち物チェックリスト") %>
+
 <div class="min-h-screen bg-gray-100 px-4 py-8">
-  <h1 class="text-3xl font-bold text-gray-800 mb-6"><%= @plan.title %> の持ち物チェックリスト</h1>
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    <%= @plan.title %> の持ち物チェックリスト
+  </h1>
 
   <!-- タブ切り替え -->
   <div class="flex justify-center mb-6">
     <div class="bg-white rounded-lg shadow p-1 flex">
-      <%= link_to plan_checklist_items_path(@plan, item_type: 'shared'), 
+      <%= link_to plan_checklist_items_path(@plan, item_type: 'shared'),
           class: "px-6 py-2 rounded-md transition-colors #{'bg-blue-500 text-white' if @item_type == 'shared'} #{'text-gray-600 hover:text-blue-500' if @item_type != 'shared'}" do %>
         📋 共有
       <% end %>
-      <%= link_to plan_checklist_items_path(@plan, item_type: 'personal'), 
+      
+      <%= link_to plan_checklist_items_path(@plan, item_type: 'personal'),
           class: "px-6 py-2 rounded-md transition-colors #{'bg-blue-500 text-white' if @item_type == 'personal'} #{'text-gray-600 hover:text-blue-500' if @item_type != 'personal'}" do %>
         👤 個人
       <% end %>
@@ -21,195 +26,164 @@
       <% if @item_type == 'shared' %>
         <p>🌟 みんなで共有する持ち物リスト</p>
       <% else %>
-        <p>🎒 あなた専用の持ち物リスト</p>
+        <p>👤 あなた専用の持ち物リスト</p>
       <% end %>
     </div>
 
     <% if @item_type == 'shared' %>
-      <!-- 共有タブ：プランメンバーごとにグループ化して表示 -->
-      <% if @checklist_items.any? %>
-        <% unique_users = @plan.plan_members.includes(:user).map(&:user).uniq %>
-        <% unique_users.each do |user| %>
-          <% next unless user.present? %>
-          
-          <div class="bg-white rounded-xl shadow p-6 mb-6">
-            <!-- ユーザー名のヘッダー -->
-            <div class="flex items-center mb-4 pb-3 border-b border-gray-200">
-              <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                <%= user.name&.first || "?" %>
-              </div>
-              <h2 class="text-xl font-bold text-gray-800">
-                <%= user.name || "不明なユーザー" %>のチェックリスト
-                <% if user == current_user %>
-                  <span class="text-sm font-normal text-blue-600">（あなた）</span>
-                <% end %>
-              </h2>
-              <span class="ml-auto text-sm text-gray-500">
-                <%= @checklist_items.count %>個のアイテム
-              </span>
+      <!-- 共有タブ：新規追加フォーム -->
+      <div class="bg-white rounded-xl shadow p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">新しい共有アイテムを追加</h3>
+        
+        <%= form_with model: [@plan, ChecklistItem.new], local: true do |form| %>
+          <div class="space-y-4">
+            <div>
+              <%= form.text_field :name, 
+                  placeholder: "新しいアイテムを入力...", 
+                  class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
             </div>
+            
+            <div class="flex gap-3 items-center">
+              <label class="text-sm font-medium text-gray-700">担当者:</label>
+              <%= form.select :assignee_id, 
+                  options_from_collection_for_select(@plan.participants, :id, :name), 
+                  { prompt: "担当者を選択..." },
+                  { class: "px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+              
+              <%= form.hidden_field :is_shared, value: true %>
+              <%= form.submit "追加", class: "px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
 
-            <!-- そのユーザーのアイテム一覧 -->
+      <!-- 共有タブ：プランメンバーごとにグループ化して表示 -->
+      <% @grouped_items.each do |group| %>
+        <div class="bg-white rounded-xl shadow p-6 mb-6">
+          <!-- ユーザー名のヘッダー部分 -->
+          <div class="flex items-center mb-4 pb-3 border-b border-gray-200">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+              <%= group[:user].name.first %>
+            </div>
+            
+            <h2 class="text-xl font-bold text-gray-800">
+              <%= group[:user].name %>の担当アイテム
+              <% if group[:is_current_user] %>
+                <span class="text-sm font-normal text-blue-600">（あなた）</span>
+              <% end %>
+            </h2>
+            
+            <span class="ml-auto text-sm text-gray-500">
+              <%= group[:items].count %>個のアイテム
+            </span>
+          </div>
+
+          <!-- そのユーザーのアイテム一覧 -->
+          <% if group[:items].any? %>
             <div class="space-y-3">
-              <% @checklist_items.each do |item| %>
-                <% # UserChecklistItemでチェック状態を確認 %>
-                <% user_checklist_item = UserChecklistItem.find_by(user: user, checklist_item: item) %>
-                <% is_checked = user_checklist_item&.is_checked || false %>
-                
-                <div class="flex items-center justify-between py-2">
+              <% group[:items].each do |item| %>
+                <div class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
                   <div class="flex items-center space-x-3">
-                    <!-- チェックボックス -->
-                    <%= form_with model: [@plan, item], method: :patch, local: true, class: "inline" do |f| %>
-                      <%= check_box_tag "checked", "1", is_checked, {
-                            class: "h-5 w-5 text-blue-600 rounded focus:ring-blue-500",
-                            onchange: "this.form.submit()",
-                            disabled: user != current_user # 自分以外のチェックボックスは無効化
-                          } %>
-                      <%= hidden_field_tag :item_type, @item_type %>
-                      <%= hidden_field_tag :target_user_id, user.id %>
-                    <% end %>
+                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span class="text-blue-600 text-sm">📦</span>
+                    </div>
                     
-                    <!-- アイテム名 -->
-                    <span class="<%= is_checked ? 'line-through text-gray-500' : 'text-gray-800' %> text-lg">
-                      <%= item.name.presence || "（無題）" %>
+                    <span class="text-gray-800 text-lg font-medium">
+                      <%= item.name %>
                     </span>
-                    
-                    <!-- 自分以外の場合は状態表示 -->
-                    <% if user != current_user %>
-                      <span class="text-xs <%= is_checked ? 'text-green-600' : 'text-gray-400' %> ml-2">
-                        <%= is_checked ? '✓ 完了' : '未完了' %>
-                      </span>
-                    <% end %>
                   </div>
                   
-                  <!-- 削除ボタン（プラン作成者のみ表示） -->
                   <% if @plan.user == current_user %>
                     <%= link_to plan_checklist_item_path(@plan, item, item_type: @item_type), 
-                        method: :delete, 
-                        data: { confirm: '本当に削除しますか？' }, 
-                        class: "text-red-500 text-sm hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 transition-colors" do %>
-                      🗑️
+                        method: :delete,
+                        confirm: "本当に削除しますか？",
+                        class: "text-red-500 text-sm hover:text-red-700 px-3 py-1 rounded hover:bg-red-50 transition-colors" do %>
+                      🗑️ 削除
                     <% end %>
                   <% end %>
                 </div>
               <% end %>
             </div>
-          </div>
-        <% end %>
-      <% else %>
-        <!-- 共有アイテムがない場合 -->
-        <div class="bg-white rounded-xl shadow p-8 text-center">
-          <div class="text-4xl mb-4">📝</div>
-          <p class="text-lg font-medium text-gray-600 mb-2">まだ共有の持ち物がありません</p>
-          <p class="text-sm text-gray-500">みんなで使う持ち物を追加してみましょう！</p>
-        </div>
-      <% end %>
-
-      <!-- 共有アイテム追加フォーム -->
-      <div class="bg-white rounded-xl shadow p-6 mt-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">📋 新しい共有アイテムを追加</h3>
-        <%= form_with model: [@plan, @checklist_item], local: true, class: "space-y-3" do |f| %>
-          <div class="flex items-center space-x-3">
-            <%= f.text_field :name, 
-                placeholder: "みんなで使う持ち物を入力", 
-                class: "flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
-                required: true %>
-            <%= f.hidden_field :item_type, value: @item_type %>
-            <%= f.submit "➕ 追加", 
-                class: "bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-sm" %>
-          </div>
-          
-          <!-- エラーメッセージ表示 -->
-          <% if @checklist_item.errors.any? %>
-            <div class="text-red-500 text-sm">
-              <% @checklist_item.errors.full_messages.each do |message| %>
-                <p>• <%= message %></p>
-              <% end %>
+          <% else %>
+            <div class="text-center py-8">
+              <div class="text-gray-400 text-4xl mb-3">📦</div>
+              <p class="text-gray-500 text-lg">まだ担当アイテムがありません</p>
+              <p class="text-gray-400 text-sm mt-1">上のフォームから新しいアイテムを追加してみましょう！</p>
             </div>
           <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- 個人タブの実装 -->
+      <div class="bg-white rounded-xl shadow p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">新しい個人アイテムを追加</h3>
+        
+        <%= form_with model: [@plan, ChecklistItem.new], local: true do |form| %>
+          <div class="flex gap-3">
+            <%= form.text_field :name, 
+                placeholder: "新しいアイテムを入力...", 
+                class: "flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
+            <%= form.hidden_field :is_shared, value: false %>
+            <%= form.submit "追加", class: "px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors" %>
+          </div>
         <% end %>
       </div>
 
-    <% else %>
-      <!-- 個人タブ：従来通りの表示 -->
-      <div class="bg-white rounded-xl shadow p-6 space-y-4">
-
-        <!-- 個人チェックリストアイテム一覧 -->
-        <% if @checklist_items.any? %>
-          <% @checklist_items.each do |item| %>
-            <% # UserChecklistItemでチェック状態を確認 %>
-            <% user_checklist_item = UserChecklistItem.find_by(user: current_user, checklist_item: item) %>
-            <% is_checked = user_checklist_item&.is_checked || false %>
-            
-            <div class="flex items-center justify-between py-2">
-              <div class="flex items-center space-x-3">
-                <!-- チェックボックス -->
-                <%= form_with model: [@plan, item], method: :patch, local: true, class: "inline" do |f| %>
-                  <%= check_box_tag "checked", "1", is_checked, {
-                        class: "h-5 w-5 text-blue-600 rounded focus:ring-blue-500",
-                        onchange: "this.form.submit()"
-                      } %>
-                  <%= hidden_field_tag :item_type, @item_type %>
-                <% end %>
-                
-                <!-- アイテム名 -->
-                <span class="<%= is_checked ? 'line-through text-gray-500' : 'text-gray-800' %> text-lg">
-                  <%= item.name.presence || "（無題）" %>
-                </span>
-              </div>
-              
-              <!-- 削除ボタン（個人アイテムは作成者のみ削除可能） -->
-              <%= link_to plan_checklist_item_path(@plan, item, item_type: @item_type), 
-                  method: :delete, 
-                  data: { confirm: '本当に削除しますか？' }, 
-                  class: "text-red-500 text-sm hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 transition-colors" do %>
-                🗑️
-              <% end %>
-            </div>
-          <% end %>
-        <% else %>
-          <!-- 個人アイテムがない場合 -->
-          <div class="text-center text-gray-500 py-8">
-            <div class="text-4xl mb-2">🎒</div>
-            <p class="text-lg font-medium">まだ個人の持ち物がありません</p>
-            <p class="text-sm">あなた専用の持ち物を追加してみましょう！</p>
+      <!-- 個人アイテム一覧の表示 -->
+      <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex items-center mb-4 pb-3 border-b border-gray-200">
+          <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+            <%= current_user.name.first %>
           </div>
-        <% end %>
-
-        <!-- 個人アイテム追加フォーム -->
-        <div class="mt-6 pt-4 border-t border-gray-200">
-          <h3 class="text-lg font-bold text-gray-800 mb-4">🎒 新しい個人アイテムを追加</h3>
-          <%= form_with model: [@plan, @checklist_item], local: true, class: "space-y-3" do |f| %>
-            <div class="flex items-center space-x-3">
-              <%= f.text_field :name, 
-                  placeholder: "あなた専用の持ち物を入力", 
-                  class: "flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
-                  required: true %>
-              <%= f.hidden_field :item_type, value: @item_type %>
-              <%= f.submit "➕ 追加", 
-                  class: "bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-sm" %>
-            </div>
-            
-            <!-- エラーメッセージ表示 -->
-            <% if @checklist_item.errors.any? %>
-              <div class="text-red-500 text-sm">
-                <% @checklist_item.errors.full_messages.each do |message| %>
-                  <p>• <%= message %></p>
+          
+          <h3 class="text-xl font-bold text-gray-800">
+            あなたの個人アイテム
+          </h3>
+          
+          <span class="ml-auto text-sm text-gray-500">
+            <%= @personal_items&.count || 0 %>個のアイテム
+          </span>
+        </div>
+        
+        <% if @personal_items&.any? %>
+          <div class="space-y-3">
+            <% @personal_items.each do |item| %>
+              <div class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center space-x-3">
+                  <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="text-green-600 text-sm">📝</span>
+                  </div>
+                  
+                  <span class="text-gray-800 text-lg font-medium">
+                    <%= item.name %>
+                  </span>
+                </div>
+                
+                <%= link_to plan_checklist_item_path(@plan, item, item_type: @item_type), 
+                    method: :delete,
+                    confirm: "本当に削除しますか？",
+                    class: "text-red-500 text-sm hover:text-red-700 px-3 py-1 rounded hover:bg-red-50 transition-colors" do %>
+                  🗑️削除
                 <% end %>
               </div>
             <% end %>
-          <% end %>
-        </div>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="text-gray-400 text-4xl mb-3">📝</div>
+            <p class="text-gray-500 text-lg">まだ個人アイテムがありません</p>
+            <p class="text-gray-400 text-sm mt-1">上のフォームから新しいアイテムを追加してみましょう！</p>
+          </div>
+        <% end %>
       </div>
     <% end %>
-  </div>
 
-  <!-- 戻るボタン -->
-  <div class="mt-8 text-center">
-    <%= link_to plan_path(@plan), 
-        class: "inline-flex items-center space-x-2 text-blue-500 hover:text-blue-700 font-medium transition-colors" do %>
-      <span>←</span>
-      <span>プランに戻る</span>
-    <% end %>
+    <!-- 戻るボタン -->
+    <div class="text-center mt-8">
+      <%= link_to plan_path(@plan), 
+          class: "inline-flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors" do %>
+        ← プランに戻る
+      <% end %>
+    </div>
   </div>
 </div>
