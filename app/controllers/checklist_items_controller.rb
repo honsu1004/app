@@ -10,7 +10,11 @@ class ChecklistItemsController < ApplicationController
     if @item_type == 'shared'
       @checklist_items = @plan.checklist_items.where(item_type: 'shared')
     else
-      @checklist_items = @plan.checklist_items.where(item_type: 'personal', user: current_user)
+      # 個人アイテムの場合：現在のユーザーが関連付けられているアイテムのみ
+      @checklist_items = @plan.checklist_items
+        .joins(:user_checklist_items)
+        .where(user_checklist_items: { user: current_user })
+        .where(item_type: 'personal')
     end
     
     @checklist_item = ChecklistItem.new
@@ -24,11 +28,20 @@ class ChecklistItemsController < ApplicationController
   def create
     @plan = Plan.find(params[:plan_id])
     @checklist_item = @plan.checklist_items.build(checklist_item_params)
-    @checklist_item.user = current_user
     @checklist_item.item_type = params[:checklist_item][:item_type] || 'personal'
 
     if @checklist_item.save
-      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), notice: '持ち物が追加されました！'
+      # 個人アイテムの場合、UserChecklistItemで関連付け
+      if @checklist_item.personal?
+        UserChecklistItem.create!(
+          user: current_user,
+          checklist_item: @checklist_item,
+          is_checked: false
+        )
+      end
+      
+      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), 
+                  notice: '持ち物が追加されました！'
     else
       @item_type = @checklist_item.item_type
       @checklist_items = load_checklist_items(@item_type)
@@ -37,20 +50,18 @@ class ChecklistItemsController < ApplicationController
   end
 
   def update
-    if @checklist_item.shared?
-      @checklist_item.toggle_check_for_user!(current_user)
-      redirect_to plan_checklist_items_path(@plan, item_type: 'shared'), notice: '持ち物が更新されました！'
-    else
-      # 個人アイテムの場合は、UserChecklistItemを使用
-      @checklist_item.toggle_check_for_user!(current_user)
-      redirect_to plan_checklist_items_path(@plan, item_type: 'personal')
-    end
+    # モデルのtoggle_check_for_user!メソッドを使用
+    @checklist_item.toggle_check_for_user!(current_user)
+    
+    redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), 
+                notice: '持ち物が更新されました！'
   end
 
   def destroy
     item_type = @checklist_item.item_type
-    @checklist_item.destroy # 削除処理
-    redirect_to plan_checklist_items_path(@plan, item_type: item_type), notice: '持ち物が削除されました！'
+    @checklist_item.destroy
+    redirect_to plan_checklist_items_path(@plan, item_type: item_type), 
+                notice: '持ち物が削除されました！'
   end
 
   private
@@ -71,20 +82,17 @@ class ChecklistItemsController < ApplicationController
   end
 
   def checklist_item_params
-    params.require(:checklist_item).permit(:name, :is_checked, :item_type)
-  end
-
-  def toggle
-    @item = ChecklistItem.find(params[:id])
-    @item.update(checked: !@item.checked)
-    redirect_to plan_checklist_items_path(@item.plan)
+    params.require(:checklist_item).permit(:name, :item_type)
   end
 
   def load_checklist_items(item_type)
     if item_type == 'shared'
       @plan.checklist_items.where(item_type: 'shared')
     else
-      @plan.checklist_items.where(item_type: 'personal', user: current_user)
+      @plan.checklist_items
+        .joins(:user_checklist_items)
+        .where(user_checklist_items: { user: current_user })
+        .where(item_type: 'personal')
     end
   end
 end

@@ -1,12 +1,11 @@
 class ChecklistItem < ApplicationRecord
   belongs_to :plan
-  belongs_to :user
   has_many :user_checklist_items, dependent: :destroy
+  has_many :users, through: :user_checklist_items
   has_many :checked_users, through: :user_checklist_items, source: :user
 
   validates :name, presence: true
-  validates :item_type, inclusion: { in: %w[shared personal] }
-  validates :user_id, presence: true
+  validates :item_type, presence: true
 
   enum :item_type, { shared: 0, personal: 1 }
 
