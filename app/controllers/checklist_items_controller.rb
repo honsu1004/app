@@ -7,14 +7,13 @@ class ChecklistItemsController < ApplicationController
     @plan = Plan.find(params[:plan_id])
     @item_type = params[:item_type] || 'shared'
 
-    case @item_type
-    when 'shared'
-      @checklist_items = @plan.checklist_items.shared
-    when 'personal'
-      @checklist_items = @plan.checklist_items.personal
+    if @item_type == 'shared'
+      @checklist_items = @plan.checklist_items.where(item_type: 'shared')
     else
-      @checklist_items = @plan.checklist_items
+      @checklist_items = @plan.checklist_items.where(item_type: 'personal', user: current_user)
     end
+    
+    @checklist_item = ChecklistItem.new
   end
 
   def new
@@ -26,26 +25,32 @@ class ChecklistItemsController < ApplicationController
     @plan = Plan.find(params[:plan_id])
     @checklist_item = @plan.checklist_items.build(checklist_item_params)
     @checklist_item.user = current_user
+    @checklist_item.item_type = params[:checklist_item][:item_type] || 'personal'
 
     if @checklist_item.save
       redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), notice: '持ち物が追加されました！'
     else
-      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), alert: '持ち物の追加に失敗しました！'
+      @item_type = @checklist_item.item_type
+      @checklist_items = load_checklist_items(@item_type)
+      render :index, status: :unprocessable_entity
     end
   end
 
   def update
-    if @checklist_item.update(checklist_item_params)
-      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), notice: '持ち物が更新されました！'
+    if @checklist_item.shared?
+      @checklist_item.toggle_check_for_user!(current_user)
+      redirect_to plan_checklist_items_path(@plan, item_type: 'shared'), notice: '持ち物が更新されました！'
     else
-      render :edit
+      # 個人アイテムの場合は、UserChecklistItemを使用
+      @checklist_item.toggle_check_for_user!(current_user)
+      redirect_to plan_checklist_items_path(@plan, item_type: 'personal')
     end
   end
 
   def destroy
     item_type = @checklist_item.item_type
     @checklist_item.destroy # 削除処理
-    redirect_to plan_checklist_items_path(@checklist_item.plan, item_type: item_type), notice: '持ち物が削除されました！'
+    redirect_to plan_checklist_items_path(@plan, item_type: item_type), notice: '持ち物が削除されました！'
   end
 
   private
@@ -73,5 +78,13 @@ class ChecklistItemsController < ApplicationController
     @item = ChecklistItem.find(params[:id])
     @item.update(checked: !@item.checked)
     redirect_to plan_checklist_items_path(@item.plan)
+  end
+
+  def load_checklist_items(item_type)
+    if item_type == 'shared'
+      @plan.checklist_items.where(item_type: 'shared')
+    else
+      @plan.checklist_items.where(item_type: 'personal', user: current_user)
+    end
   end
 end
