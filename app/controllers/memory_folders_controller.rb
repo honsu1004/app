@@ -4,7 +4,7 @@ class MemoryFoldersController < ApplicationController
   before_action :authorize_member!, only: [ :index, :create, :update, :destroy ]
 
   def index
-    @plan = current_user.plans.find(params[:plan_id])
+    @plan = Plan.find(params[:plan_id])
     @memory_folder = @plan.memory_folders.build
     @memory_folders = @plan.memory_folders
   end

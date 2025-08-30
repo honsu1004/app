@@ -3,7 +3,7 @@ class MemoriesController < ApplicationController
   before_action :authorize_member!, only: [ :index, :create, :edit, :destroy ]
 
   def index
-    @plan = current_user.plans.find(params[:plan_id])
+    @plan = Plan.find(params[:plan_id])
     @memory_folder = @plan.memory_folders.find(params[:memory_folder_id])
     @memories = @memory_folder.memories.order(created_at: :desc)
   end

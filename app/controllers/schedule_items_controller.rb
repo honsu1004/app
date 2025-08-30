@@ -3,8 +3,13 @@ class ScheduleItemsController < ApplicationController
   before_action :authorize_member!, only: [ :edit, :update, :destroy ]
 
   def index
-    @plan = current_user.plans.find(params[:plan_id])
-    
+    @plan = Plan.find(params[:plan_id])
+
+    unless @plan.users.include?(current_user) || @plan.user == current_user
+      redirect_to root_path, alert: "このプランにアクセスする権限がありません"
+      return
+    end
+
     # Ruby側で並び替えを実装
     schedule_items = @plan.schedule_items
     @schedule_items = schedule_items.sort_by do |item|
