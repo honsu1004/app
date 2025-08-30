@@ -1,31 +1,60 @@
 class ChecklistItemsController < ApplicationController
-  before_action :authorize_member!, only: [ :index, :create, :destroy ]
+  before_action :set_plan
+  before_action :set_checklist_item, only: [:update, :destroy]
+  before_action :authorize_member!, only: [:index, :new, :create, :update, :destroy]
 
   def index
     @plan = Plan.find(params[:plan_id])
-    @checklist_items = @plan.checklist_items
+
+    case @item_type
+    when 'shared'
+      @checklist_items = @plan.checklist_items.shared
+    when 'personal'
+      @checklist_items = @plan.checklist_items.personal
+    else
+      @checklist_items = @plan.checklist_items
+    end
+  end
+
+  def new
+    @checklist_item = @plan.checklist_items.build
+    @item_type = params[:item_type] || 'shared'
   end
 
   def create
     @plan = Plan.find(params[:plan_id])
-    @checklist_item = @plan.checklist_items.new(checklist_item_params)
+    @checklist_item = @plan.checklist_items.build(checklist_item_params)
+    @checklist_item.user = current_user
 
     if @checklist_item.save
-      redirect_to plan_checklist_items_path(@plan), notice: '持ち物が追加されました！'
+      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), notice: '持ち物が追加されました！'
     else
-      render :index
+      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), alert: '持ち物の追加に失敗しました！'
     end
   end
 
   def update
-    checklist_item = ChecklistItem.find(params[:id])
-    checklist_item.update(checklist_item_params)
+    if @checklist_item.update(checklist_item_params)
+      redirect_to plan_checklist_items_path(@plan, item_type: @checklist_item.item_type), notice: '持ち物が更新されました！'
+    else
+      render :edit
+    end
   end
 
   def destroy
-    @checklist_item = ChecklistItem.find(params[:id])
+    item_type = @checklist_item.item_type
     @checklist_item.destroy # 削除処理
-    redirect_to plan_checklist_items_path(@checklist_item.plan), notice: '持ち物が削除されました！'
+    redirect_to plan_checklist_items_path(@checklist_item.plan, item_type: item_type), notice: '持ち物が削除されました！'
+  end
+
+  private
+
+  def set_plan
+    @plan = current_user.plans.find(params[:plan_id])
+  end
+
+  def set_checklist_item
+    @checklist_item = @plan.checklist_items.find(params[:id])
   end
 
   def authorize_member!
@@ -36,7 +65,7 @@ class ChecklistItemsController < ApplicationController
   end
 
   def checklist_item_params
-    params.require(:checklist_item).permit(:name, :is_checked)
+    params.require(:checklist_item).permit(:name, :is_checked, :item_type)
   end
 
   def toggle

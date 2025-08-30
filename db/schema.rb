@@ -55,7 +55,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_100319) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "name"
+    t.bigint "user_id", null: false
     t.integer "item_type", default: 0
+    t.index ["user_id"], name: "index_checklist_items_on_user_id"
   end
 
   create_table "memories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

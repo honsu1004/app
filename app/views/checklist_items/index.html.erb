@@ -1,28 +1,84 @@
 <div class="min-h-screen bg-gray-100 px-4 py-8">
   <h1 class="text-3xl font-bold text-gray-800 mb-6"><%= @plan.title %> の持ち物チェックリスト</h1>
 
-  <div class="bg-white rounded-xl shadow p-6 max-w-xl mx-auto space-y-4">
+  <!-- タブ切り替え -->
+  <div class="flex justify-center mb-6">
+    <div class="bg-white rounded-lg shadow p-1 flex">
+      <%= link_to plan_checklist_items_path(@plan, item_type: 'shared'), 
+          class: "px-6 py-2 rounded-md transition-colors #{'bg-blue-500 text-white' if @item_type == 'shared'} #{'text-gray-600 hover:text-blue-500' if @item_type != 'shared'}" do %>
+        📋 共有
+      <% end %>
+      <%= link_to plan_checklist_items_path(@plan, item_type: 'personal'), 
+          class: "px-6 py-2 rounded-md transition-colors #{'bg-blue-500 text-white' if @item_type == 'personal'} #{'text-gray-600 hover:text-blue-500' if @item_type != 'personal'}" do %>
+        👤 個人
+      <% end %>
+    </div>
+  </div>
 
-    <% @checklist_items.each do |item| %>
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <%= form_with model: [@plan, item], method: :patch, local: true do |f| %>
-            <%= f.check_box :is_checked, { checked: item.is_checked, class: "h-5 w-5 text-blue-600", onchange: "this.form.submit()" } %>
+  <div class="bg-white rounded-xl shadow p-6 max-w-xl mx-auto space-y-4">
+    <!-- タブの説明 -->
+    <div class="text-center text-gray-600 mb-4">
+      <% if @item_type == 'shared' %>
+        <p>🌟 みんなで共有する持ち物リスト</p>
+      <% else %>
+        <p>🎒 あなた専用の持ち物リスト</p>
+      <% end %>
+    </div>
+
+    <!-- チェックリストアイテム一覧 -->
+    <% if @checklist_items.any? %>
+      <% @checklist_items.each do |item| %>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <%= form_with model: [@plan, item], method: :patch, local: true do |f| %>
+              <%= f.check_box :is_checked, { 
+                    checked: item.is_checked, 
+                    class: "h-5 w-5 text-blue-600", 
+                    onchange: "this.form.submit()" 
+                  } %>
+              <%= f.hidden_field :item_type, value: @item_type %>
+            <% end %>
+            <span class="<%= item.is_checked ? 'line-through text-gray-500' : 'text-gray-800' %>">
+              <%= item.name.presence || "（無題）" %>
+            </span>
+            <!-- 個人アイテムの場合、作成者を表示 -->
+            <% if item.personal? && item.user != current_user %>
+              <span class="text-xs text-gray-400">（<%= item.user.name %>さん）</span>
+            <% end %>
+          </div>
+          <!-- 削除ボタン（共有は誰でも、個人は作成者のみ） -->
+          <% if item.shared? || item.user == current_user %>
+            <%= link_to '削除', 
+                plan_checklist_item_path(@plan, item, item_type: @item_type), 
+                method: :delete, 
+                data: { confirm: '本当に削除しますか？' }, 
+                class: "text-red-500 text-sm hover:underline" %>
           <% end %>
-          <span class="<%= item.is_checked ? 'line-through text-gray-500' : 'text-gray-800' %>">
-            <%= item.name.presence || "（無題）" %>
-          </span>
         </div>
-        <%= link_to '削除', plan_checklist_item_path(@plan, item), method: :delete, data: { confirm: '本当に削除しますか？' }, class: "text-red-500 text-sm hover:underline" %>
+      <% end %>
+    <% else %>
+      <div class="text-center text-gray-500 py-8">
+        <% if @item_type == 'shared' %>
+          <p>📝 まだ共有の持ち物がありません</p>
+          <p class="text-sm">みんなで使う持ち物を追加してみましょう！</p>
+        <% else %>
+          <p>🎒 まだ個人の持ち物がありません</p>
+          <p class="text-sm">あなた専用の持ち物を追加してみましょう！</p>
+        <% end %>
       </div>
     <% end %>
 
     <!-- 新しい持ち物の追加 -->
     <%= form_with model: [@plan, ChecklistItem.new], local: true do |f| %>
-      <div class="flex items-center space-x-3 mt-6">
-        <%= f.text_field :name, placeholder: "新しい持ち物を入力", class: "flex-1 p-2 border rounded" %>
-        <%= f.hidden_field :is_checked, value: false %>
-        <%= f.submit "追加", class: "bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" %>
+      <div class="space-y-3 mt-6 pt-4 border-t">
+        <div class="flex items-center space-x-3">
+          <%= f.text_field :name, 
+              placeholder: @item_type == 'shared' ? "みんなで使う持ち物を入力" : "あなた専用の持ち物を入力", 
+              class: "flex-1 p-2 border rounded" %>
+          <%= f.hidden_field :is_checked, value: false %>
+          <%= f.hidden_field :item_type, value: @item_type %>
+          <%= f.submit "追加", class: "bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" %>
+        </div>
       </div>
     <% end %>
   </div>
