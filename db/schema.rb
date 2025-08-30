@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_100319) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_114432) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,7 +51,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_100319) do
 
   create_table "checklist_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "plan_id"
-    t.boolean "is_checked"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "name"
@@ -136,6 +135,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_100319) do
     t.index ["user_id"], name: "index_schedule_items_on_user_id"
   end
 
+  create_table "user_checklist_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "checklist_item_id", null: false
+    t.boolean "is_checked"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["checklist_item_id"], name: "index_user_checklist_items_on_checklist_item_id"
+    t.index ["user_id", "checklist_item_id"], name: "index_user_checklist_items_on_user_id_and_checklist_item_id", unique: true
+    t.index ["user_id"], name: "index_user_checklist_items_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -158,4 +168,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_100319) do
   add_foreign_key "memory_folders", "plans"
   add_foreign_key "plan_invitations", "plans"
   add_foreign_key "schedule_items", "users"
+  add_foreign_key "user_checklist_items", "checklist_items"
+  add_foreign_key "user_checklist_items", "users"
 end

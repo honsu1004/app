@@ -5,6 +5,7 @@ class ChecklistItemsController < ApplicationController
 
   def index
     @plan = Plan.find(params[:plan_id])
+    @item_type = params[:item_type] || 'shared'
 
     case @item_type
     when 'shared'
