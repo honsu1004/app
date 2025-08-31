@@ -8,6 +8,8 @@ class NotesController < ApplicationController
   end
 
   def create
+    Rails.logger.debug "Request format: #{request.format}"
+    Rails.logger.debug "Accept header: #{request.headers['Accept']}"
     @plan = Plan.find(params[:plan_id])
     @note = @plan.notes.new(note_params)
     @note.user = current_user
@@ -15,8 +17,8 @@ class NotesController < ApplicationController
     if @note.save
       redirect_to plan_notes_path(@plan), notice: 'ノートが作成されました！'
     else
-      @notes = @plan.notes
-      render :index
+      @notes = @plan.notes.order(created_at: :desc)
+      render :index, status: :unprocessable_entity
     end
   end
 
