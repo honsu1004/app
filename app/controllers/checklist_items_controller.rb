@@ -111,6 +111,9 @@ class ChecklistItemsController < ApplicationController
     # 個人アイテムは本人のみ削除可能
     return true if !item.is_shared && item.assignee == current_user
     
+    # 🆕 共有アイテムも参加者なら削除可能に変更
+    return true if item.is_shared && @plan.participants.include?(current_user)
+    
     false
   end
 
