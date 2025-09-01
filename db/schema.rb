@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_150450) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_01_111410) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -57,6 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_150450) do
     t.integer "item_type", default: 0
     t.bigint "assignee_id"
     t.boolean "is_shared", default: true, null: false
+    t.boolean "checked", default: false, null: false
     t.index ["assignee_id"], name: "index_checklist_items_on_assignee_id"
   end
 

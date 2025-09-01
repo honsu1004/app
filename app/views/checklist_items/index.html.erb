@@ -85,7 +85,12 @@
                 <div class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
                   <div class="flex items-center space-x-3">
                     <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span class="text-blue-600 text-sm">📦</span>
+                      <%= form_with model: [@plan, item], local: false, class: "inline-block" do |f| %>
+                        <%= f.check_box :checked,
+                              onchange: "this.form.submit()",
+                              class: "w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2 cursor-pointer" %>
+                      <% end %>
+                      <span class="text-blue-600 text-sm"></span>
                     </div>
                     
                     <span class="text-gray-800 text-lg font-medium">
@@ -150,8 +155,18 @@
             <% @personal_items.each do |item| %>
               <div class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
                 <div class="flex items-center space-x-3">
+                  <%= form_with model: [@plan, item],
+                                url: plan_checklist_item_path(@plan, item, item_type: params[:item_type]), 
+                                local: true,
+                                class: "inline-block" do |f| %>
+                    <%= f.hidden_field :item_type, value: item.item_type %>
+                    <%= f.check_box :checked,
+                          onchange: "this.form.submit()",
+                          class: "w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2 cursor-pointer" %>
+                  <% end %>
+
                   <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                    <span class="text-green-600 text-sm">📝</span>
+                    <span class="text-green-600 text-sm"></span>
                   </div>
                   
                   <span class="text-gray-800 text-lg font-medium">

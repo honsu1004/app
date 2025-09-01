@@ -58,6 +58,32 @@ class ChecklistItemsController < ApplicationController
     end
   end
 
+  def update
+    @checklist_item = ChecklistItem.find(params[:id])
+
+    # item_typeを確実に取得
+    item_type = params[:item_type] ||
+                params.dig(:checklist_item, :item_type) ||
+                @checklist_item.item_type
+
+    if @checklist_item.update(checklist_item_params)
+      respond_to do |format|
+        # 修正：item_type変数を使用する
+        format.html { redirect_to plan_checklist_items_path(@plan, item_type: item_type) }
+        format.js   { render json: { status: 'success', checked: @checklist_item.checked } }
+      end
+    else
+      respond_to do |format|
+        # 修正：item_type変数を使用する
+        format.html { 
+          redirect_to plan_checklist_items_path(@plan, item_type: item_type), 
+                      alert: '更新に失敗しました' 
+        }
+        format.js   { render json: { status: 'error'} }
+      end
+    end
+  end
+
   def destroy
     @checklist_item = @plan.checklist_items.find(params[:id])
     
@@ -85,7 +111,7 @@ class ChecklistItemsController < ApplicationController
   end
 
   def checklist_item_params
-    params.require(:checklist_item).permit(:name, :assignee_id, :is_shared)
+    params.require(:checklist_item).permit(:name, :assignee_id, :is_shared, :checked, :item_type)
   end
 
   def can_delete_item?(item)
