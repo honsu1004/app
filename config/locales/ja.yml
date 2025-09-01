@@ -1,8 +1,15 @@
 ja:
   activerecord:
     models:
+      checklist_item: チェックリストアイテム
       user: ユーザー
+      plan: プラン
     attributes:
+      checklist_item:
+        name: アイテム名
+        assignee_id: 担当者
+        item_type: タイプ
+        is_shared: 共有設定
       user:
         email: メールアドレス
         name: 名前

@@ -9,7 +9,7 @@ class ChecklistItem < ApplicationRecord
   validates :item_type, presence: true
   validates :is_shared, inclusion: { in: [true, false] }
   # 共有アイテムの場合のみ担当者を必須にする
-  validates :assignee_id, presence: { message: '担当者を選択してください' }, if: :is_shared?
+  validates :assignee_id, presence: { message: 'を選択してください' }, if: :is_shared?
 
   enum :item_type, { shared: 0, personal: 1 }
 
