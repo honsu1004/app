@@ -116,7 +116,7 @@
                     </span>
                   </div>
                   
-                  <% if @plan.user == current_user %>
+                  <% if can_delete_item?(@plan, item, current_user) %>
                     <%= link_to plan_checklist_item_path(@plan, item, item_type: @item_type), 
                         method: :delete,
                         confirm: "本当に削除しますか？",
