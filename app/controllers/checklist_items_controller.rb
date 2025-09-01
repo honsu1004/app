@@ -29,32 +29,22 @@ class ChecklistItemsController < ApplicationController
     @checklist_item = @plan.checklist_items.build(checklist_item_params)
     
     # 個人アイテムの場合は自動的に現在のユーザーを担当者に設定
-    if !@checklist_item.is_shared
+    unless @checklist_item.is_shared
       @checklist_item.assignee = current_user
     end
 
     if @checklist_item.save
-      redirect_to plan_checklist_items_path(@plan, item_type: params[:checklist_item][:is_shared] == 'true' ? 'shared' : 'personal'),
+      # 成功時
+      item_type = @checklist_item.is_shared? ? 'shared' : 'personal'
+      redirect_to plan_checklist_items_path(@plan, item_type: item_type),
                   notice: 'アイテムが追加されました'
     else
-      # エラーがある場合は再度indexを表示
-      @item_type = params[:checklist_item][:is_shared] == 'true' ? 'shared' : 'personal'
-      if @item_type == 'shared'
-        shared_items = @plan.checklist_items.where(is_shared: true).includes(:assignee)
-        @grouped_items = @plan.participants.map do |user|
-          {
-            user: user,
-            items: shared_items.where(assignee: user),
-            is_current_user: user == current_user
-          }
-        end
-      else
-        @personal_items = @plan.checklist_items.where(
-          is_shared: false, 
-          assignee: current_user
-        )
-      end
-      render :index
+      # エラー時はリダイレクトでエラーメッセージを表示
+      item_type = params[:checklist_item][:is_shared] == 'true' ? 'shared' : 'personal'
+      error_message = @checklist_item.errors.full_messages.first || '登録に失敗しました'
+      
+      redirect_to plan_checklist_items_path(@plan, item_type: item_type),
+                  alert: error_message
     end
   end
 

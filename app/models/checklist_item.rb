@@ -1,6 +1,6 @@
 class ChecklistItem < ApplicationRecord
   belongs_to :plan
-  belongs_to :assignee, class_name: 'User'
+  belongs_to :assignee, class_name: 'User', optional: true
   has_many :user_checklist_items, dependent: :destroy
   has_many :users, through: :user_checklist_items
   has_many :checked_users, through: :user_checklist_items, source: :user
@@ -8,6 +8,8 @@ class ChecklistItem < ApplicationRecord
   validates :name, presence: true
   validates :item_type, presence: true
   validates :is_shared, inclusion: { in: [true, false] }
+  # 共有アイテムの場合のみ担当者を必須にする
+  validates :assignee_id, presence: { message: '担当者を選択してください' }, if: :is_shared?
 
   enum :item_type, { shared: 0, personal: 1 }
 

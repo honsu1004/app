@@ -5,6 +5,24 @@
     <%= @plan.title %> の持ち物チェックリスト
   </h1>
 
+  <% if flash[:alert] %>
+    <div class="alert alert-danger mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+      <div class="flex items-center">
+        <span class="text-red-500 mr-2">⚠️</span>
+        <%= flash[:alert] %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if flash[:notice] %>
+    <div class="alert alert-success mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+      <div class="flex items-center">
+        <span class="text-green-500 mr-2">✅</span>
+        <%= flash[:notice] %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- タブ切り替え -->
   <div class="flex justify-center mb-6">
     <div class="bg-white rounded-lg shadow p-1 flex">
