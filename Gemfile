@@ -47,6 +47,11 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "rspec-rails"
+  gem "factory_bot_rails"  # テストデータ作成用（推奨）
+  gem "capybara"          # システムテスト用（推奨）
+  gem "selenium-webdriver" # ブラウザテスト用（推奨）
 end
 
 group :development do
@@ -54,12 +59,6 @@ group :development do
   gem "web-console"
   gem "letter_opener"
   gem "letter_opener_web"
-end
-
-group :test do
-  # Use system testing [https://guides.rubyonrails.dorg/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
 end
 
 gem "devise"
