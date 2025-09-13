@@ -62,20 +62,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Run tests
+      - name: Install JavaScript dependencies
+        run: npm install
+
+      - name: Setup Rails environment
         env:
           RAILS_ENV: test
           DATABASE_URL: mysql2://root:password@127.0.0.1:3306/test_database
           MYSQL_PWD: password
         run: |
-          bin/rails db:test:prepare
-          bundle exec rspec
+          bin/rails assets:precompile
+          bin/rails db:create
+          bin/rails db:schema:load
+
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: mysql2://root:password@127.0.0.1:3306/test_database
+          MYSQL_PWD: password
+        run: bundle exec rspec
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
