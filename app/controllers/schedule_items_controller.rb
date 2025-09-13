@@ -15,7 +15,7 @@ class ScheduleItemsController < ApplicationController
     @schedule_items = schedule_items.sort_by do |item|
       [
         item.day_number,
-        item.start_time ? [item.start_time.hour, item.start_time.min] : [23, 59]
+        item.start_time ? [ item.start_time.hour, item.start_time.min ] : [ 23, 59 ]
       ]
     end
   end

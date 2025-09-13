@@ -14,8 +14,8 @@ class User < ApplicationRecord
   has_many :memories, dependent: :destroy
   has_many :memory_folders, through: :plans
   has_many :schedule_items
-  has_many :checklist_items, foreign_key: 'assignee_id', dependent: :destroy
+  has_many :checklist_items, foreign_key: "assignee_id", dependent: :destroy
   has_many :user_checklist_items, dependent: :destroy
   has_many :checked_checklist_items, through: :user_checklist_items, source: :checklist_item
-  has_many :assigned_checklist_items, class_name: 'ChecklistItem', foreign_key: 'assignee_id', dependent: :destroy
+  has_many :assigned_checklist_items, class_name: "ChecklistItem", foreign_key: "assignee_id", dependent: :destroy
 end

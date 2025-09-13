@@ -19,7 +19,7 @@ RSpec.describe 'Sessions', type: :request do
             password: 'password123'
           }
         }
-        
+
         expect(response).to have_http_status(:redirect)
         follow_redirect!
         expect(controller.current_user).to eq(user)
@@ -34,7 +34,7 @@ RSpec.describe 'Sessions', type: :request do
             password: 'wrong_password'
           }
         }
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         expect(controller.current_user).to be_nil
       end

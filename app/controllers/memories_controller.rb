@@ -24,7 +24,7 @@ class MemoriesController < ApplicationController
     if uploaded_files.empty?
       @memory.errors.add(:media, "画像を選択してください")
       @memories = @memory_folder.memories.order(created_at: :desc)
-      render 'memory_folders/show', status: :unprocessable_entity
+      render "memory_folders/show", status: :unprocessable_entity
       return
     end
 
@@ -41,7 +41,7 @@ class MemoriesController < ApplicationController
     else
       Rails.logger.debug "Memory save failed: #{@memory.errors.full_messages}"
       @memories = @memory_folder.memories.order(created_at: :desc)
-      render 'memory_folders/show', status: :unprocessable_entity
+      render "memory_folders/show", status: :unprocessable_entity
     end
   end
 

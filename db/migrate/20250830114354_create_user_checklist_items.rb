@@ -8,6 +8,6 @@ class CreateUserChecklistItems < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :user_checklist_items, [:user_id, :checklist_item_id], unique: true
+    add_index :user_checklist_items, [ :user_id, :checklist_item_id ], unique: true
   end
 end

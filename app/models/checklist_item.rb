@@ -1,15 +1,15 @@
 class ChecklistItem < ApplicationRecord
   belongs_to :plan
-  belongs_to :assignee, class_name: 'User', optional: true
+  belongs_to :assignee, class_name: "User", optional: true
   has_many :user_checklist_items, dependent: :destroy
   has_many :users, through: :user_checklist_items
   has_many :checked_users, through: :user_checklist_items, source: :user
 
   validates :name, presence: true
   validates :item_type, presence: true
-  validates :is_shared, inclusion: { in: [true, false] }
+  validates :is_shared, inclusion: { in: [ true, false ] }
   # 共有アイテムの場合のみ担当者を必須にする
-  validates :assignee_id, presence: { message: 'を選択してください' }, if: :is_shared?
+  validates :assignee_id, presence: { message: "を選択してください" }, if: :is_shared?
 
   enum :item_type, { shared: 0, personal: 1 }
 
@@ -17,8 +17,8 @@ class ChecklistItem < ApplicationRecord
   scope :visible_to_plan_member, ->(user, plan) {
     where(plan: plan).where(
       "item_type = ? OR (item_type = ? AND EXISTS (
-        SELECT 1 FROM user_checklist_items uci 
-        WHERE uci.checklist_item_id = checklist_items.id 
+        SELECT 1 FROM user_checklist_items uci
+        WHERE uci.checklist_item_id = checklist_items.id
         AND uci.user_id = ?
       ))",
       item_types[:shared], item_types[:personal], user.id

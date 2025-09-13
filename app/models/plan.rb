@@ -22,7 +22,7 @@ class Plan < ApplicationRecord
 
   # participantsメソッドを定義（プラン作成者 + メンバー）
   def participants
-    User.where(id: [user_id] + member_ids).distinct
+    User.where(id: [ user_id ] + member_ids).distinct
   end
 
   private
@@ -35,5 +35,5 @@ class Plan < ApplicationRecord
 
   def add_owner_as_member
     plan_members.create!(user: user)
-  end  
+  end
 end

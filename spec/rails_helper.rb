@@ -10,10 +10,10 @@ require 'factory_bot_rails'
 RSpec.configure do |config|
   # FactoryBotのメソッドを使えるようにする
   config.include FactoryBot::Syntax::Methods
-  
+
   # Deviseのヘルパー（必要に応じて）
   config.include Devise::Test::IntegrationHelpers, type: :request
-  
+
   # 基本設定
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!

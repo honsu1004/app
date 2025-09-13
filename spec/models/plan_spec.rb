@@ -80,11 +80,11 @@ RSpec.describe Plan, type: :model do
     describe 'after_create :add_owner_as_member' do
       it 'プラン作成時に作成者がメンバーに自動追加される' do
         user = create(:user)
-        
+
         expect {
           plan = create(:plan, user: user)
         }.to change(PlanMember, :count).by(1)
-        
+
         plan = Plan.last
         expect(plan.members).to include(user)
       end
@@ -92,7 +92,7 @@ RSpec.describe Plan, type: :model do
       it 'プラン作成者は必ずメンバーに含まれる' do
         user = create(:user)
         plan = create(:plan, user: user)
-        
+
         expect(plan.accessible_by?(user)).to be true
       end
     end

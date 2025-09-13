@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe User, type: :model do
   describe 'バリデーションテスト' do
     it 'メールアドレスが重複している場合は無効' do
-
       create(:user, email: "test@example.com")
       duplicate_user = build(:user, email: "test@example.com")
 

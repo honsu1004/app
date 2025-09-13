@@ -15,7 +15,7 @@ class ChatMessagesController < ApplicationController
     @chat_message.user = current_user
 
     if @chat_message.save
-        
+
     else
       logger.debug "❌ ChatMessage Save Failed: #{@chat_message.errors.full_messages}"
     end

@@ -3,7 +3,7 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Default URL
   Rails.application.routes.default_url_options[:host] =
-    'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com'
+    "sleepy-atoll-32838-cdb52831bb6a.herokuapp.com"
 
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -83,18 +83,18 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
   config.action_mailer.smtp_settings = {
-    address:              'smtp.gmail.com',
+    address:              "smtp.gmail.com",
     port:                 587,
-    domain:               'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com',
-    user_name:            ENV['SMTP_USERNAME'],
-    password:             ENV['SMTP_PASSWORD'],
-    authentication:       'plain',
+    domain:               "sleepy-atoll-32838-cdb52831bb6a.herokuapp.com",
+    user_name:            ENV["SMTP_USERNAME"],
+    password:             ENV["SMTP_PASSWORD"],
+    authentication:       "plain",
     enable_starttls_auto: true
   }
-  
+
   config.action_mailer.default_url_options = {
-    host: 'sleepy-atoll-32838-cdb52831bb6a.herokuapp.com',
-    protocol: 'https'
+    host: "sleepy-atoll-32838-cdb52831bb6a.herokuapp.com",
+    protocol: "https"
   }
 
   # Ignore bad email addresses and do not raise email delivery errors.
@@ -122,8 +122,8 @@ Rails.application.configure do
 
   config.force_ssl = true
 
-  config.session_store :cookie_store, 
-    key: '_your_app_session',
+  config.session_store :cookie_store,
+    key: "_your_app_session",
     secure: Rails.env.production?,
     httponly: true,
     same_site: :strict

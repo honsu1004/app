@@ -5,7 +5,7 @@ class ChecklistItemsController < ApplicationController
 
   def index
     @item_type = params[:item_type] || 'shared'
-    
+
     if @item_type == 'shared'
       # 共有アイテムをユーザーごとにグループ化
       shared_items = @plan.checklist_items.where(is_shared: true).includes(:assignee)
@@ -19,7 +19,7 @@ class ChecklistItemsController < ApplicationController
     else
       # 個人アイテム（現在のユーザーのみ）
       @personal_items = @plan.checklist_items.where(
-        is_shared: false, 
+        is_shared: false,
         assignee: current_user
       )
     end
@@ -27,7 +27,7 @@ class ChecklistItemsController < ApplicationController
 
   def create
     @checklist_item = @plan.checklist_items.build(checklist_item_params)
-    
+
     # 個人アイテムの場合は自動的に現在のユーザーを担当者に設定
     unless @checklist_item.is_shared
       @checklist_item.assignee = current_user
@@ -42,7 +42,7 @@ class ChecklistItemsController < ApplicationController
       # エラー時はリダイレクトでエラーメッセージを表示
       item_type = params[:checklist_item][:is_shared] == 'true' ? 'shared' : 'personal'
       error_message = @checklist_item.errors.full_messages.first || '登録に失敗しました'
-      
+
       redirect_to plan_checklist_items_path(@plan, item_type: item_type),
                   alert: error_message
     end
@@ -65,18 +65,18 @@ class ChecklistItemsController < ApplicationController
     else
       respond_to do |format|
         # 修正：item_type変数を使用する
-        format.html { 
-          redirect_to plan_checklist_items_path(@plan, item_type: item_type), 
-                      alert: '更新に失敗しました' 
+        format.html {
+          redirect_to plan_checklist_items_path(@plan, item_type: item_type),
+                      alert: '更新に失敗しました'
         }
-        format.js   { render json: { status: 'error'} }
+        format.js   { render json: { status: 'error' } }
       end
     end
   end
 
   def destroy
     @checklist_item = @plan.checklist_items.find(params[:id])
-    
+
     # 削除権限チェック
     if can_delete_item?(@checklist_item)
       @checklist_item.destroy
@@ -107,13 +107,13 @@ class ChecklistItemsController < ApplicationController
   def can_delete_item?(item)
     # プラン作成者は全てのアイテムを削除可能
     return true if @plan.user == current_user
-    
+
     # 個人アイテムは本人のみ削除可能
     return true if !item.is_shared && item.assignee == current_user
-    
+
     # 🆕 共有アイテムも参加者なら削除可能に変更
     return true if item.is_shared && @plan.participants.include?(current_user)
-    
+
     false
   end
 
