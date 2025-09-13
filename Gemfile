@@ -52,6 +52,7 @@ group :development, :test do
   gem "factory_bot_rails"  # テストデータ作成用（推奨）
   gem "capybara"          # システムテスト用（推奨）
   gem "selenium-webdriver" # ブラウザテスト用（推奨）
+  gem "database_cleaner-active_record"
 end
 
 group :development do
