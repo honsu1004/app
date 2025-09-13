@@ -32,7 +32,7 @@
               <p class="text-sm text-gray-600">投稿者: <%= memory.user.name %></p>
               <% if memory.url.present? %>
                 <p class="text-sm text-blue-600">
-                  <%= link_to "リンク", memory.url, target: "_blank", class: "hover:underline" %>
+                  <%= link_to("リンク", safe_url(@memory_folder.url), target: "_blank", class: "hover:underline") %>
                 </p>
               <% end %>
             </div>

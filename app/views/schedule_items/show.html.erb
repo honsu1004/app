@@ -24,7 +24,7 @@
           <div class="flex items-center">
             <p class="text-lg text-gray-900">📍 <%= @schedule_item.location_name %></p>
             <% if @schedule_item.url.present? %>
-              <%= link_to @schedule_item.url, 
+              <%= link_to safe_url(@schedule_item.url), 
                   target: "_blank", 
                   rel: "noopener noreferrer",
                   class: "ml-4 inline-flex items-center px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100" do %>
