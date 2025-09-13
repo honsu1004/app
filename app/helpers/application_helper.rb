@@ -1,7 +1,7 @@
 module ApplicationHelper
   def safe_url(url)
     return "#" if url.blank?
-    
+
     begin
       uri = URI.parse(url)
       # HTTPまたはHTTPSのURLのみ許可
@@ -9,7 +9,7 @@ module ApplicationHelper
     rescue URI::InvalidURIError
       # 無効なURLの場合はデフォルトに戻す
     end
-    
+
     "#"
   end
 end
